@@ -54,9 +54,10 @@ export class List {
         else{ 
             var getData = [];
             for(var d = datefrom; d <= dateto; d.setDate(d.getDate() + 1)) {
-                var from = new Date(d);
-                var to = new Date(this.getStringDate(from) + 'T23:59:59');
-                getData.push(this.service.getAllSalesByFilter(this.data.filter.storeId, from, to));
+                var date = new Date(d);
+                var fromString = this.getStringDate(date) + 'T00:00:00'; 
+                var toString = this.getStringDate(date) + 'T23:59:59';
+                getData.push(this.service.getAllSalesByFilter(this.data.filter.storeId, fromString, toString));
             }
             Promise.all(getData)
                 .then(salesPerDays => {   
