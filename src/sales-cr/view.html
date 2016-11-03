@@ -38,6 +38,12 @@
             </div>
         </div>  -->
         <div class="form-group">
+            <label for="voucher" class="col-sm-2 control-label">Voucher</label>
+            <div class="col-sm-10">
+                <p class="form-control-static">${data.salesDetail.voucher.value}</p>
+            </div>
+        </div>  
+        <div class="form-group">
             <label for="grandTotal" class="col-sm-2 control-label">Total</label>
             <div class="col-sm-10">
                 <p class="form-control-static">${data.grandTotal}</p>
@@ -110,7 +116,7 @@
         <tbody>
             <tr repeat.for="item of data.items">
                 <td>${$index+1}</td>
-                <td>${item.articleVariant.name }  </td> 
+                <td>${item.item.name }  </td> 
                 <td>${item.quantity}</td>
                 <td>${item.price}</td> 
                 <td>${item.discount1}</td> 

@@ -8,7 +8,7 @@ export class DataForm {
     @bindable error = {};
         
     storeApiUri = require('../host').master + '/stores';
-    variantApiUri = require('../host').core + '/articles/variants';
+    finishedGoodsApiUri = require('../host').master + '/finishedgoods';
     voucherApiUri = '';
     
     constructor(router, service, bindingEngine) { 
@@ -38,7 +38,7 @@ export class DataForm {
         this.data.totalDiscount = 0;
         this.data.total = 0;
         this.data.grandTotal = 0;
-        this.data.salesDetail.voucherDiscount = 0; 
+        this.data.salesDetail.voucher.value = 0; 
         this.data.salesDetail.cashAmount = 0;
         this.data.salesDetail.cardAmount = 0;
         this.data.salesDetail.refund = 0;
@@ -47,8 +47,8 @@ export class DataForm {
                 var item = this.data.items[splices[0].index];
                 if(item)
                 {
-                    this.bindingEngine.propertyObserver(item, "articleVariantId").subscribe((newValue, oldValue) => {
-                        item.price = parseInt(item.articleVariant.domesticSale);
+                    this.bindingEngine.propertyObserver(item, "itemId").subscribe((newValue, oldValue) => {
+                        item.price = parseInt(item.item.domesticSale);
                         this.refreshPromo();
                     });
                 }
@@ -64,9 +64,9 @@ export class DataForm {
     
     addItem() {           
         var item = {};
-        item.articleVariantId = '';
-        item.articleVariant = {};
-        item.articleVariant.domesticSale = 0;
+        item.itemId = '';
+        item.item = {};
+        item.item.domesticSale = 0;
         item.quantity = 0;
         item.price = 0;
         item.discount1 = 0;
@@ -118,22 +118,23 @@ export class DataForm {
     }
     
     refreshDetail() {
-        this.data.grandTotal = 0;
-        //this.data.salesDetail.voucherDiscount = 0;
-        this.data.grandTotal = parseInt(this.data.total) - parseInt(this.data.salesDetail.voucherDiscount);
+        this.data.total = 0;
+        this.data.total = parseInt(this.data.grandTotal) - parseInt(this.data.salesDetail.voucher.value);
+        if(this.data.total < 0)
+            this.data.total = 0;
 
         if(this.isCash && this.isCard) { //partial
-            this.data.salesDetail.cardAmount = parseInt(this.data.grandTotal) - parseInt(this.data.salesDetail.cashAmount);
+            this.data.salesDetail.cardAmount = parseInt(this.data.total) - parseInt(this.data.salesDetail.cashAmount);
             if(parseInt(this.data.salesDetail.cardAmount) < 0)
                 this.data.salesDetail.cardAmount = 0;
         }
         else if(this.isCard) //card
-            this.data.salesDetail.cardAmount = this.data.grandTotal; 
+            this.data.salesDetail.cardAmount = this.data.total; 
         else if(this.isCash) //cash
-            if(parseInt(this.data.salesDetail.cashAmount) <= 0)
-                this.data.salesDetail.cashAmount = this.data.grandTotal; 
+            if(parseInt(this.data.salesDetail.cashAmount) < parseInt(this.data.total))
+                this.data.salesDetail.cashAmount = this.data.total; 
         
-        var refund = parseInt(this.data.salesDetail.cashAmount) + parseInt(this.data.salesDetail.cardAmount) - parseInt(this.data.grandTotal);
+        var refund = parseInt(this.data.salesDetail.cashAmount) + parseInt(this.data.salesDetail.cardAmount) - parseInt(this.data.total);
         if(refund < 0)
             refund = 0;
         this.data.salesDetail.refund = refund;
@@ -181,8 +182,8 @@ export class DataForm {
         var date = this.data.date;
          
         for(var item of this.data.items) {
-            var variantId = item.articleVariantId;
-            getPromoes.push(this.service.getPromoByStoreVariantDatetime(storeId, variantId, date));
+            var itemId = item.itemId;
+            getPromoes.push(this.service.getPromoByStoreItemDatetime(storeId, itemId, date));
         }
         
         Promise.all(getPromoes)
@@ -192,10 +193,10 @@ export class DataForm {
                     item.discount1 = 0;
                     item.discount2 = 0;
                     item.discountNominal = 0;
-                    var promo = results[index];
+                    var promo = results[index][0];
                     if(promo) {
                         for(var promoProduct of promo.promoProducts) {
-                            if(promoProduct.articleVariantId == item.articleVariantId) {
+                            if(promoProduct.itemId == item.itemId) {
                                 if(promoProduct.promoDiscount) {
                                     if(promoProduct.promoDiscount.unit.toLowerCase() == "percentage") {
                                         item.discount1 = promoProduct.promoDiscount.discount1;
