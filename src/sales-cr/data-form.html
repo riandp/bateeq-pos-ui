@@ -43,9 +43,9 @@
                     <tr repeat.for="item of data.items">
                         <td>${$index+1}</td>
                         <td>
-                            <div class="form-group ${error.items[$index].articleVariantId?'has-error':''}">
-                                <horsey src.bind="variantApiUri" selection.bind="item.articleVariant" value.bind="item.articleVariantId" options.bind="{value:'_id', label:'name'}" change.delegate="sumRow(item)"></horsey>
-                                <span class="help-block">${error.items[$index].articleVariantId}</span>
+                            <div class="form-group ${error.items[$index].itemId?'has-error':''}">
+                                <horsey src.bind="finishedGoodsApiUri" selection.bind="item.item" value.bind="item.itemId" options.bind="{value:'_id', label:'name'}" change.delegate="sumRow(item)"></horsey>
+                                <span class="help-block">${error.items[$index].itemId}</span>
                             </div>
                         </td>
                         <td>

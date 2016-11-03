@@ -8,7 +8,7 @@ export class DataForm {
     @bindable error = {};
         
     storeApiUri = require('../host').master + '/stores';
-    variantApiUri = require('../host').core + '/articles/variants';
+    finishedGoodsApiUri = require('../host').master + '/finishedgoods';
     voucherApiUri = '';
     
     constructor(router, service, bindingEngine) { 
@@ -47,8 +47,8 @@ export class DataForm {
                 var item = this.data.items[splices[0].index];
                 if(item)
                 {
-                    this.bindingEngine.propertyObserver(item, "articleVariantId").subscribe((newValue, oldValue) => {
-                        item.price = parseInt(item.articleVariant.domesticSale);
+                    this.bindingEngine.propertyObserver(item, "itemId").subscribe((newValue, oldValue) => {
+                        item.price = parseInt(item.item.domesticSale);
                         this.refreshPromo();
                     });
                 }
@@ -64,9 +64,9 @@ export class DataForm {
     
     addItem() {           
         var item = {};
-        item.articleVariantId = '';
-        item.articleVariant = {};
-        item.articleVariant.domesticSale = 0;
+        item.itemId = '';
+        item.item = {};
+        item.item.domesticSale = 0;
         item.quantity = 0;
         item.price = 0;
         item.discount1 = 0;
@@ -181,8 +181,8 @@ export class DataForm {
         var date = this.data.date;
          
         for(var item of this.data.items) {
-            var variantId = item.articleVariantId;
-            getPromoes.push(this.service.getPromoByStoreVariantDatetime(storeId, variantId, date));
+            var itemId = item.itemId;
+            getPromoes.push(this.service.getPromoByStoreItemDatetime(storeId, itemId, date));
         }
         
         Promise.all(getPromoes)
@@ -192,10 +192,10 @@ export class DataForm {
                     item.discount1 = 0;
                     item.discount2 = 0;
                     item.discountNominal = 0;
-                    var promo = results[index];
+                    var promo = results[index][0];
                     if(promo) {
                         for(var promoProduct of promo.promoProducts) {
-                            if(promoProduct.articleVariantId == item.articleVariantId) {
+                            if(promoProduct.itemId == item.itemId) {
                                 if(promoProduct.promoDiscount) {
                                     if(promoProduct.promoDiscount.unit.toLowerCase() == "percentage") {
                                         item.discount1 = promoProduct.promoDiscount.discount1;

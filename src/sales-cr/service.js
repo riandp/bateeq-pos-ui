@@ -35,8 +35,8 @@ export class Service extends RestService {
         return super.get(serviceUriCardType);
     }
     
-    getPromoByStoreVariantDatetime(storeId, variantId, datetime) {
-        var endpoint = `${serviceUriPromo}/${storeId}/${variantId}/${datetime}`;
+    getPromoByStoreItemDatetime(storeId, itemId, datetime) {
+        var endpoint = `${serviceUriPromo}/${storeId}/${itemId}/${datetime}`;
         return super.get(endpoint);
     }
 }

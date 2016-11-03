@@ -96,10 +96,10 @@ export class List {
                                 for(var item of data.items)
                                 {
                                     var detail = {};
-                                    detail.barcode = item.articleVariant.code;
-                                    detail.namaProduk = item.articleVariant.name;
-                                    detail.size = item.articleVariant.size;
-                                    detail.harga = item.articleVariant.domesticSale;
+                                    detail.barcode = item.item.code;
+                                    detail.namaProduk = item.item.name;
+                                    detail.size = item.item.size;
+                                    detail.harga = item.item.domesticSale;
                                     detail.quantity = item.quantity;
                                     detail.omsetBrutto = parseInt(detail.harga) * parseInt(detail.quantity);
                                     detail.discount1Percentage = item.discount1;
