@@ -38,7 +38,7 @@ export class DataForm {
         this.data.totalDiscount = 0;
         this.data.total = 0;
         this.data.grandTotal = 0;
-        this.data.salesDetail.voucherDiscount = 0; 
+        this.data.salesDetail.voucher.value = 0; 
         this.data.salesDetail.cashAmount = 0;
         this.data.salesDetail.cardAmount = 0;
         this.data.salesDetail.refund = 0;
@@ -118,22 +118,23 @@ export class DataForm {
     }
     
     refreshDetail() {
-        this.data.grandTotal = 0;
-        //this.data.salesDetail.voucherDiscount = 0;
-        this.data.grandTotal = parseInt(this.data.total) - parseInt(this.data.salesDetail.voucherDiscount);
+        this.data.total = 0;
+        this.data.total = parseInt(this.data.grandTotal) - parseInt(this.data.salesDetail.voucher.value);
+        if(this.data.total < 0)
+            this.data.total = 0;
 
         if(this.isCash && this.isCard) { //partial
-            this.data.salesDetail.cardAmount = parseInt(this.data.grandTotal) - parseInt(this.data.salesDetail.cashAmount);
+            this.data.salesDetail.cardAmount = parseInt(this.data.total) - parseInt(this.data.salesDetail.cashAmount);
             if(parseInt(this.data.salesDetail.cardAmount) < 0)
                 this.data.salesDetail.cardAmount = 0;
         }
         else if(this.isCard) //card
-            this.data.salesDetail.cardAmount = this.data.grandTotal; 
+            this.data.salesDetail.cardAmount = this.data.total; 
         else if(this.isCash) //cash
-            if(parseInt(this.data.salesDetail.cashAmount) <= 0)
-                this.data.salesDetail.cashAmount = this.data.grandTotal; 
+            if(parseInt(this.data.salesDetail.cashAmount) < parseInt(this.data.total))
+                this.data.salesDetail.cashAmount = this.data.total; 
         
-        var refund = parseInt(this.data.salesDetail.cashAmount) + parseInt(this.data.salesDetail.cardAmount) - parseInt(this.data.grandTotal);
+        var refund = parseInt(this.data.salesDetail.cashAmount) + parseInt(this.data.salesDetail.cardAmount) - parseInt(this.data.total);
         if(refund < 0)
             refund = 0;
         this.data.salesDetail.refund = refund;
