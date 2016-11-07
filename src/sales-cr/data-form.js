@@ -44,20 +44,21 @@ export class DataForm {
         this.data.salesDetail.refund = 0;
         this.bindingEngine.collectionObserver(this.data.items)
             .subscribe(splices => {
-                var item = this.data.items[splices[0].index];
+                var index = splices[0].index;
+                var item = this.data.items[index];
                 if(item)
                 {
                     this.bindingEngine.propertyObserver(item, "itemId").subscribe((newValue, oldValue) => {
                         item.price = parseInt(item.item.domesticSale);
-                        this.refreshPromo();
+                        this.refreshPromo(index);
                     });
                 }
             });
         this.bindingEngine.propertyObserver(this.data, "storeId").subscribe((newValue, oldValue) => {
-            this.refreshPromo();
+            this.refreshPromo(-1);
         });
         this.bindingEngine.propertyObserver(this.data, "date").subscribe((newValue, oldValue) => {
-            this.refreshPromo();
+            this.refreshPromo(-1);
         });
             
     }  
@@ -176,41 +177,48 @@ export class DataForm {
         this.data.date = new Date(this.data.datePicker);        
     }
     
-    refreshPromo() {
+    refreshPromo(indexItem) {
         var getPromoes = [];
         var storeId = this.data.storeId;
         var date = this.data.date;
          
         for(var item of this.data.items) {
-            var itemId = item.itemId;
-            getPromoes.push(this.service.getPromoByStoreItemDatetime(storeId, itemId, date));
+            if ( indexItem == -1 || indexItem == this.data.items.indexOf(item) )
+            {
+                console.log( "indexItem " + indexItem );
+                console.log( "indexOf " + this.data.items.indexOf(item) );
+                var itemId = item.itemId;
+                getPromoes.push(this.service.getPromoByStoreItemDatetime(storeId, itemId, date));
+            }
         }
         
         Promise.all(getPromoes)
             .then(results => {   
                 var index = 0;
                 for(var item of this.data.items) {
-                    item.discount1 = 0;
-                    item.discount2 = 0;
-                    item.discountNominal = 0;
-                    var promo = results[index][0];
-                    if(promo) {
-                        for(var promoProduct of promo.promoProducts) {
-                            if(promoProduct.itemId == item.itemId) {
-                                if(promoProduct.promoDiscount) {
-                                    if(promoProduct.promoDiscount.unit.toLowerCase() == "percentage") {
-                                        item.discount1 = promoProduct.promoDiscount.discount1;
-                                        item.discount2 = promoProduct.promoDiscount.discount2;
+                    if (indexItem == -1 || indexItem == this.data.items.indexOf(item)) {
+                        item.discount1 = 0;
+                        item.discount2 = 0;
+                        item.discountNominal = 0;
+                        var promo = results[index][0];
+                        if(promo) {
+                            for(var promoProduct of promo.promoProducts) {
+                                if(promoProduct.itemId == item.itemId) {
+                                    if(promoProduct.promoDiscount) {
+                                        if(promoProduct.promoDiscount.unit.toLowerCase() == "percentage") {
+                                            item.discount1 = promoProduct.promoDiscount.discount1;
+                                            item.discount2 = promoProduct.promoDiscount.discount2;
+                                        }
+                                        else if(promoProduct.promoDiscount.unit.toLowerCase() == "nominal") {
+                                            item.discountNominal = promoProduct.promoDiscount.nominal;
+                                        }
                                     }
-                                    else if(promoProduct.promoDiscount.unit.toLowerCase() == "nominal") {
-                                        item.discountNominal = promoProduct.promoDiscount.nominal;
-                                    }
-                                }
-                            } 
+                                } 
+                            }
                         }
+                        this.sumRow(item);
+                        index += 1; 
                     }
-                    this.sumRow(item);
-                    index += 1; 
                 }
             })
     }
