@@ -32,6 +32,7 @@ export class DataForm {
     attached() {    
         this.data.datePicker = this.getStringDate(new Date());
         this.data.date = new Date();
+        this.data.shift = 0;
         this.data.discount = 0;
         this.data.totalProduct = 0;
         this.data.subTotal = 0;
@@ -55,6 +56,14 @@ export class DataForm {
                 }
             });
         this.bindingEngine.propertyObserver(this.data, "storeId").subscribe((newValue, oldValue) => {
+            var today = new Date();
+            for(var shift of this.data.store.shifts) { 
+                var dateFrom = new Date(this.getUTCStringDate(today) + "T" + this.getUTCStringTime(new Date(shift.dateFrom)));
+                var dateTo = new Date(this.getUTCStringDate(today) + "T" + this.getUTCStringTime(new Date(shift.dateTo)));
+                if( dateFrom < today && today < dateTo ) { 
+                    this.data.shift = shift.shift;
+                }
+            }
             this.refreshPromo(-1);
         });
         this.bindingEngine.propertyObserver(this.data, "date").subscribe((newValue, oldValue) => {
@@ -62,6 +71,12 @@ export class DataForm {
         });
             
     }  
+    
+    StoreChanged(e) {
+        var store = e.detail;
+        if (store)
+            this.data.storeId = store._id;
+    }
     
     addItem() {           
         var item = {};
@@ -172,6 +187,37 @@ export class DataForm {
         date = yyyy+'-'+mm+'-'+dd;
         return date; 
     }
+     
+    getUTCStringDate(date) { 
+        var dd = date.getUTCDate();
+        var mm = date.getUTCMonth()+1; //January is 0! 
+        var yyyy = date.getUTCFullYear();
+        if(dd<10){
+            dd='0'+dd
+        } 
+        if(mm<10){
+            mm='0'+mm
+        } 
+        date = yyyy+'-'+mm+'-'+dd;
+        return date; 
+    }
+    
+    getUTCStringTime(date) { 
+        var hh = date.getUTCHours();
+        var mm = date.getUTCMinutes();
+        var ss = date.getUTCSeconds();
+        if(hh<10){
+            hh='0'+hh
+        } 
+        if(mm<10){
+            mm='0'+mm
+        } 
+        if(ss<10){
+            ss='0'+ss
+        } 
+        date = hh+':'+mm+':'+ss;
+        return date; 
+    }
     
     setDate() {
         this.data.date = new Date(this.data.datePicker);        
@@ -185,8 +231,6 @@ export class DataForm {
         for(var item of this.data.items) {
             if ( indexItem == -1 || indexItem == this.data.items.indexOf(item) )
             {
-                console.log( "indexItem " + indexItem );
-                console.log( "indexOf " + this.data.items.indexOf(item) );
                 var itemId = item.itemId;
                 getPromoes.push(this.service.getPromoByStoreItemDatetime(storeId, itemId, date));
             }
