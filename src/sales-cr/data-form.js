@@ -133,6 +133,11 @@ export class DataForm {
         this.refreshDetail();
     }
     
+    refreshVoucher() {
+        this.data.salesDetail.cashAmount = 0;
+        this.refreshDetail();
+    }
+    
     refreshDetail() {
         this.data.total = 0;
         this.data.total = parseInt(this.data.grandTotal) - parseInt(this.data.salesDetail.voucher.value);
