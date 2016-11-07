@@ -90,7 +90,13 @@
     "horsey": "^4.2.2",
     "isomorphic-fetch": "^2.2.1",
     "jquery": "^3.0.0",
-    "moment": "^2.14.1"
+    "jsx": "^0.9.89",
+    "moment": "^2.14.1",
+    "react": "^15.3.1",
+    "react-autosuggest": "^6.0.3",
+    "react-bootstrap": "^0.30.5",
+    "react-dom": "^15.3.1",
+    "react-dynamic-number": "^1.4.0"
   },
   "devDependencies": {
     "@easy-webpack/config-aurelia": "^2.0.1",
@@ -116,6 +122,7 @@
     "babel-preset-es2015-loose": "^7.0.0",
     "babel-preset-es2015-loose-native-modules": "^1.0.0",
     "babel-preset-stage-1": "^6.5.0",
+    "babel-preset-react": "^6.11.1",
     "babel-register": "^6.9.0",
     "concurrently": "^2.1.0",
     "cross-env": "^1.0.8",
@@ -139,7 +146,8 @@
   "babel": {
     "presets": [
       "es2015",
-      "stage-1"
+      "stage-1",
+      "react"
     ]
   }
 }

@@ -32,6 +32,7 @@ export class DataForm {
     attached() {    
         this.data.datePicker = this.getStringDate(new Date());
         this.data.date = new Date();
+        this.data.shift = 0;
         this.data.discount = 0;
         this.data.totalProduct = 0;
         this.data.subTotal = 0;
@@ -44,23 +45,38 @@ export class DataForm {
         this.data.salesDetail.refund = 0;
         this.bindingEngine.collectionObserver(this.data.items)
             .subscribe(splices => {
-                var item = this.data.items[splices[0].index];
+                var index = splices[0].index;
+                var item = this.data.items[index];
                 if(item)
                 {
                     this.bindingEngine.propertyObserver(item, "itemId").subscribe((newValue, oldValue) => {
                         item.price = parseInt(item.item.domesticSale);
-                        this.refreshPromo();
+                        this.refreshPromo(index);
                     });
                 }
             });
         this.bindingEngine.propertyObserver(this.data, "storeId").subscribe((newValue, oldValue) => {
-            this.refreshPromo();
+            var today = new Date();
+            for(var shift of this.data.store.shifts) { 
+                var dateFrom = new Date(this.getUTCStringDate(today) + "T" + this.getUTCStringTime(new Date(shift.dateFrom)));
+                var dateTo = new Date(this.getUTCStringDate(today) + "T" + this.getUTCStringTime(new Date(shift.dateTo)));
+                if( dateFrom < today && today < dateTo ) { 
+                    this.data.shift = shift.shift;
+                }
+            }
+            this.refreshPromo(-1);
         });
         this.bindingEngine.propertyObserver(this.data, "date").subscribe((newValue, oldValue) => {
-            this.refreshPromo();
+            this.refreshPromo(-1);
         });
             
     }  
+    
+    StoreChanged(e) {
+        var store = e.detail;
+        if (store)
+            this.data.storeId = store._id;
+    }
     
     addItem() {           
         var item = {};
@@ -114,6 +130,11 @@ export class DataForm {
         this.data.totalDiscount = parseInt(this.data.subTotal) * parseInt(this.data.discount) / 100;
         this.data.total = parseInt(this.data.subTotal) - parseInt(this.data.totalDiscount);
         this.data.grandTotal = this.data.total;
+        this.refreshDetail();
+    }
+    
+    refreshVoucher() {
+        this.data.salesDetail.cashAmount = 0;
         this.refreshDetail();
     }
     
@@ -171,46 +192,82 @@ export class DataForm {
         date = yyyy+'-'+mm+'-'+dd;
         return date; 
     }
+     
+    getUTCStringDate(date) { 
+        var dd = date.getUTCDate();
+        var mm = date.getUTCMonth()+1; //January is 0! 
+        var yyyy = date.getUTCFullYear();
+        if(dd<10){
+            dd='0'+dd
+        } 
+        if(mm<10){
+            mm='0'+mm
+        } 
+        date = yyyy+'-'+mm+'-'+dd;
+        return date; 
+    }
+    
+    getUTCStringTime(date) { 
+        var hh = date.getUTCHours();
+        var mm = date.getUTCMinutes();
+        var ss = date.getUTCSeconds();
+        if(hh<10){
+            hh='0'+hh
+        } 
+        if(mm<10){
+            mm='0'+mm
+        } 
+        if(ss<10){
+            ss='0'+ss
+        } 
+        date = hh+':'+mm+':'+ss;
+        return date; 
+    }
     
     setDate() {
         this.data.date = new Date(this.data.datePicker);        
     }
     
-    refreshPromo() {
+    refreshPromo(indexItem) {
         var getPromoes = [];
         var storeId = this.data.storeId;
         var date = this.data.date;
          
         for(var item of this.data.items) {
-            var itemId = item.itemId;
-            getPromoes.push(this.service.getPromoByStoreItemDatetime(storeId, itemId, date));
+            if ( indexItem == -1 || indexItem == this.data.items.indexOf(item) )
+            {
+                var itemId = item.itemId;
+                getPromoes.push(this.service.getPromoByStoreItemDatetime(storeId, itemId, date));
+            }
         }
         
         Promise.all(getPromoes)
             .then(results => {   
                 var index = 0;
                 for(var item of this.data.items) {
-                    item.discount1 = 0;
-                    item.discount2 = 0;
-                    item.discountNominal = 0;
-                    var promo = results[index][0];
-                    if(promo) {
-                        for(var promoProduct of promo.promoProducts) {
-                            if(promoProduct.itemId == item.itemId) {
-                                if(promoProduct.promoDiscount) {
-                                    if(promoProduct.promoDiscount.unit.toLowerCase() == "percentage") {
-                                        item.discount1 = promoProduct.promoDiscount.discount1;
-                                        item.discount2 = promoProduct.promoDiscount.discount2;
+                    if (indexItem == -1 || indexItem == this.data.items.indexOf(item)) {
+                        item.discount1 = 0;
+                        item.discount2 = 0;
+                        item.discountNominal = 0;
+                        var promo = results[index][0];
+                        if(promo) {
+                            for(var promoProduct of promo.promoProducts) {
+                                if(promoProduct.itemId == item.itemId) {
+                                    if(promoProduct.promoDiscount) {
+                                        if(promoProduct.promoDiscount.unit.toLowerCase() == "percentage") {
+                                            item.discount1 = promoProduct.promoDiscount.discount1;
+                                            item.discount2 = promoProduct.promoDiscount.discount2;
+                                        }
+                                        else if(promoProduct.promoDiscount.unit.toLowerCase() == "nominal") {
+                                            item.discountNominal = promoProduct.promoDiscount.nominal;
+                                        }
                                     }
-                                    else if(promoProduct.promoDiscount.unit.toLowerCase() == "nominal") {
-                                        item.discountNominal = promoProduct.promoDiscount.nominal;
-                                    }
-                                }
-                            } 
+                                } 
+                            }
                         }
+                        this.sumRow(item);
+                        index += 1; 
                     }
-                    this.sumRow(item);
-                    index += 1; 
                 }
             })
     }

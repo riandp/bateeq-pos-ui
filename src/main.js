@@ -4,6 +4,7 @@ bootstrap(async (aurelia) => {
   aurelia.use
     .standardConfiguration()
     .developmentLogging()
+    .feature('components/form')
     // .plugin('aurelia-validation')
     // .plugin('aurelia-validatejs')
     // .feature('utils/bootstrap-validation');
