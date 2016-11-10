@@ -51,7 +51,10 @@ export class DataForm {
                 {
                     this.bindingEngine.propertyObserver(item, "itemId").subscribe((newValue, oldValue) => {
                         item.price = parseInt(item.item.domesticSale);
-                        item.quantity += 1;
+                        item.quantity = 1 + parseInt(item.quantity);
+                        this.refreshPromo(index);
+                    });
+                    this.bindingEngine.propertyObserver(item, "quantity").subscribe((newValue, oldValue) => {
                         this.refreshPromo(index);
                     });
                 }
@@ -239,22 +242,28 @@ export class DataForm {
             {
                 var itemId = item.itemId;
                 var quantity = item.quantity;
+                item.discount1 = 0;
+                item.discount2 = 0;
+                item.discountNominal = 0;
+                item.price = parseInt(item.item.domesticSale);
+                item.promoId = '';
+                item.promo = {};
                 getPromoes.push(this.service.getPromoByStoreDatetimeItemQuantity(storeId, date, itemId, quantity));
             }
         }
         
         Promise.all(getPromoes)
             .then(results => {   
-                var index = 0;
+                var resultIndex = 0;
                 for(var item of this.data.items) {
-                    if (indexItem == -1 || indexItem == this.data.items.indexOf(item)) {
-                        var promo = results[index][0];
+                    var index = this.data.items.indexOf(item);
+                    if (indexItem == -1 || indexItem == index) {
+                        var promo = results[resultIndex][0];
                         if(promo) {
-                            if(promo.reward.type = "discount-product")
+                            item.promoId = promo._id;
+                            item.promo = promo;
+                            if(promo.reward.type == "discount-product")
                             {
-                                item.discount1 = 0;
-                                item.discount2 = 0;
-                                item.discountNominal = 0;
                                 for(var reward of promo.reward.rewards) {
                                     if(reward.unit == "percentage") {
                                         item.discount1 = reward.discount1;
@@ -265,9 +274,37 @@ export class DataForm {
                                     }
                                 }
                             }
+                            if(promo.reward.type == "special-price") 
+                            {
+                                //cek quantity
+                                var quantityPaket = 0;
+                                for(var item2 of this.data.items) {
+                                    if(item.promoId == item2.promoId) {
+                                        quantityPaket = parseInt(quantityPaket) + parseInt(item2.quantity)
+                                    }
+                                }
+                                
+                                //change price
+                                for(var item2 of this.data.items) {
+                                    if(item.promoId == item2.promoId) {
+                                        for(var reward of promo.reward.rewards) {
+                                            if(parseInt(quantityPaket) == 1)
+                                                item2.price = parseInt(reward.quantity1);
+                                            else if(parseInt(quantityPaket) == 2)
+                                                item2.price = parseInt(reward.quantity2);
+                                            else if(parseInt(quantityPaket) == 3)
+                                                item2.price = parseInt(reward.quantity3);
+                                            else if(parseInt(quantityPaket) == 4)
+                                                item2.price = parseInt(reward.quantity4);
+                                            else if(parseInt(quantityPaket) >= 5)
+                                                item2.price = parseInt(reward.quantity5);
+                                        }  
+                                    }
+                                } 
+                            }
                         }
                         this.sumRow(item);
-                        index += 1; 
+                        resultIndex += 1; 
                     }
                 }
             })
