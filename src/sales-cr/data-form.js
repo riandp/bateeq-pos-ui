@@ -7,7 +7,7 @@ export class DataForm {
     @bindable data = {};
     @bindable error = {};
         
-    storeApiUri = require('../host').master + '/stores';
+    //storeApiUri = require('../host').master + '/stores';
     finishedGoodsApiUri = require('../host').master + '/finishedgoods';
     voucherApiUri = '';
     
@@ -51,6 +51,10 @@ export class DataForm {
                 {
                     this.bindingEngine.propertyObserver(item, "itemId").subscribe((newValue, oldValue) => {
                         item.price = parseInt(item.item.domesticSale);
+                        item.quantity = 1 + parseInt(item.quantity);
+                        this.refreshPromo(index);
+                    });
+                    this.bindingEngine.propertyObserver(item, "quantity").subscribe((newValue, oldValue) => {
                         this.refreshPromo(index);
                     });
                 }
@@ -72,7 +76,7 @@ export class DataForm {
             
     }  
     
-    StoreChanged(e) {
+    storeChanged(e) {
         var store = e.detail;
         if (store)
             this.data.storeId = store._id;
@@ -237,36 +241,71 @@ export class DataForm {
             if ( indexItem == -1 || indexItem == this.data.items.indexOf(item) )
             {
                 var itemId = item.itemId;
-                getPromoes.push(this.service.getPromoByStoreItemDatetime(storeId, itemId, date));
+                var quantity = item.quantity;
+                item.discount1 = 0;
+                item.discount2 = 0;
+                item.discountNominal = 0;
+                item.price = parseInt(item.item.domesticSale);
+                item.promoId = '';
+                item.promo = {};
+                getPromoes.push(this.service.getPromoByStoreDatetimeItemQuantity(storeId, date, itemId, quantity));
             }
         }
         
         Promise.all(getPromoes)
             .then(results => {   
-                var index = 0;
+                var resultIndex = 0;
                 for(var item of this.data.items) {
-                    if (indexItem == -1 || indexItem == this.data.items.indexOf(item)) {
-                        item.discount1 = 0;
-                        item.discount2 = 0;
-                        item.discountNominal = 0;
-                        var promo = results[index][0];
+                    var index = this.data.items.indexOf(item);
+                    if (indexItem == -1 || indexItem == index) {
+                        var promo = results[resultIndex][0];
                         if(promo) {
-                            for(var promoProduct of promo.promoProducts) {
-                                if(promoProduct.itemId == item.itemId) {
-                                    if(promoProduct.promoDiscount) {
-                                        if(promoProduct.promoDiscount.unit.toLowerCase() == "percentage") {
-                                            item.discount1 = promoProduct.promoDiscount.discount1;
-                                            item.discount2 = promoProduct.promoDiscount.discount2;
-                                        }
-                                        else if(promoProduct.promoDiscount.unit.toLowerCase() == "nominal") {
-                                            item.discountNominal = promoProduct.promoDiscount.nominal;
-                                        }
+                            item.promoId = promo._id;
+                            item.promo = promo;
+                            if(promo.reward.type == "discount-product")
+                            {
+                                for(var reward of promo.reward.rewards) {
+                                    if(reward.unit == "percentage") {
+                                        item.discount1 = reward.discount1;
+                                        item.discount2 = reward.discount2;
+                                    }
+                                    else if(reward.unit == "nominal") {
+                                        item.discountNominal = reward.nominal;
+                                    }
+                                }
+                            }
+                            if(promo.reward.type == "special-price") 
+                            {
+                                //cek quantity
+                                var quantityPaket = 0;
+                                for(var item2 of this.data.items) {
+                                    if(item.promoId == item2.promoId) {
+                                        quantityPaket = parseInt(quantityPaket) + parseInt(item2.quantity)
+                                    }
+                                }
+                                
+                                //change price
+                                for(var item2 of this.data.items) {
+                                    if(item.promoId == item2.promoId) {
+                                        for(var reward of promo.reward.rewards) {
+                                            if(parseInt(quantityPaket) == 1)
+                                                item2.price = parseInt(reward.quantity1);
+                                            else if(parseInt(quantityPaket) == 2)
+                                                item2.price = parseInt(reward.quantity2);
+                                            else if(parseInt(quantityPaket) == 3)
+                                                item2.price = parseInt(reward.quantity3);
+                                            else if(parseInt(quantityPaket) == 4)
+                                                item2.price = parseInt(reward.quantity4);
+                                            else if(parseInt(quantityPaket) >= 5)
+                                                item2.price = parseInt(reward.quantity5);
+                                        }  
+                                        this.sumRow(item2);
                                     }
                                 } 
                             }
                         }
                         this.sumRow(item);
-                        index += 1; 
+                        resultIndex += 1; 
                     }
                 }
             })

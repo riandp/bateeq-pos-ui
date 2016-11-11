@@ -5,7 +5,7 @@ import {RestService} from '../rest-service';
 const serviceUri = require('../host').sales + '/docs/sales';
 const serviceUriBank = require('../host').master + '/banks';
 const serviceUriCardType = require('../host').master + '/cardtypes';
-const serviceUriPromo = require('../host').sales + '/docs/promos'; 
+const serviceUriPromo = require('../host').sales + '/promos'; 
 
 export class Service extends RestService {
 
@@ -35,8 +35,8 @@ export class Service extends RestService {
         return super.get(serviceUriCardType);
     }
     
-    getPromoByStoreItemDatetime(storeId, itemId, datetime) {
-        var endpoint = `${serviceUriPromo}/${storeId}/${itemId}/${datetime}`;
+    getPromoByStoreDatetimeItemQuantity(storeId, datetime, itemId, quantity) {
+        var endpoint = `${serviceUriPromo}/${storeId}/${datetime}/${itemId}/${quantity}`;
         return super.get(endpoint);
     }
 }

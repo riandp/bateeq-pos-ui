@@ -9,7 +9,7 @@
             </div>
         </div>
         -->
-        <store-auto-suggest label="Toko" value.bind="data.store" error.bind="error.store" read-only.bind="readOnly" change.delegate="StoreChanged($event)"></store-auto-suggest>
+        <store-auto-suggest label="Toko" value.bind="data.store" error.bind="error.store" read-only.bind="readOnly" change.delegate="storeChanged($event)"></store-auto-suggest>
         
         <div class="form-group ${error.shift?'has-error':''}">
             <label for="shift" class="col-sm-2 control-label">Shift</label>
@@ -169,7 +169,7 @@
                     </tr>
                     <tr> 
                         <td colspan="9" style="text-align:right;">Grand Total</td>
-                        <td style="text-align:right;">${data.total}</td>
+                        <td style="text-align:right;">${data.grandTotal}</td>
                         <td></td> 
                     </tr>
                 </tbody>
