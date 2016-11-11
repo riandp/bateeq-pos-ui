@@ -19,10 +19,16 @@ export class Create {
     list() {
         this.router.navigateToRoute('list');
     }
+    
+    detail(data) {
+        this.router.navigateToRoute('view', { id: data });
+    }
 
     save() { 
         this.service.create(this.data)
             .then(result => {
+                //console.log(result);
+                //this.detail(result);
                 this.list();
             })
             .catch(e => {

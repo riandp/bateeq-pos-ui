@@ -103,6 +103,7 @@ export class DataForm {
         var itemIndex = this.data.items.indexOf(item);
         this.data.items.splice(itemIndex, 1);
         this.sumTotal(); 
+        this.refreshPromo(-1);
     }
     
     sumRow(item) {

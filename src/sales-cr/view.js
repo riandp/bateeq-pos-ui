@@ -81,7 +81,7 @@ export class View {
     
     generatePrintStruk() { 
         var discountSubTotal = parseInt(this.data.subTotal) * (parseInt(this.data.discount) / 100);
-        var exchange = parseInt(this.data.grandTotal) - (parseInt(this.data.salesDetail.cardAmount) + parseInt(this.data.salesDetail.cashAmount) + parseInt(this.data.salesDetail.voucher.value));
+        var exchange = (parseInt(this.data.salesDetail.cardAmount) + parseInt(this.data.salesDetail.cashAmount) + parseInt(this.data.salesDetail.voucher.value)) - parseInt(this.data.grandTotal);
         var hemat = 0;
         hemat += discountSubTotal;
         
