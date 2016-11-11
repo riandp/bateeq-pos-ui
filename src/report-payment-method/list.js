@@ -43,6 +43,8 @@ export class List {
 
     activate() { 
     }
+
+ 
      
     attached() { 
         this.bindingEngine.propertyObserver(this.data.filter, "storeId").subscribe((newValue, oldValue) => {
@@ -413,6 +415,12 @@ export class List {
 
                 this.subtotalArrTotal += this.arrTotalTempDebit[j]+this.arrTotalTempCredit[j]+this.arrTotalTempCreditMaster[j]+this.arrTotalTempCreditVisa[j];
             }
+            if(unique[j]=="Cash"){
+                var index = unique.indexOf("Cash");
+                if (index >= 0) {
+                unique.splice( index, 1 );
+                }   
+            }
             
             
             
@@ -427,5 +435,4 @@ export class List {
         
          
     }
-    
 }
