@@ -299,6 +299,7 @@ export class DataForm {
                                             else if(parseInt(quantityPaket) >= 5)
                                                 item2.price = parseInt(reward.quantity5);
                                         }  
+                                        this.sumRow(item2);
                                     }
                                 } 
                             }
