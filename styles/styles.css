@@ -218,6 +218,11 @@ div.au-stagger {
     margin-top: .5cm;
     height: 14cm;
   }*/
+
+  .struk {
+    width: 75mm;
+    font-size:8pt;
+  }
   
   .a4 {
     width: 210mm;
