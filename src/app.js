@@ -1,14 +1,37 @@
-export class App {
-  configureRouter(config, router) {
-    config.title = 'Aurelia';
-    config.map([
-      { route: ['', 'welcome'], name: 'welcome', moduleId: './welcome', nav: true, title: 'Welcome' },
-      // { route: 'users',         name: 'users',        moduleId: './users',        nav: true, title: 'Github Users' },
-      // { route: 'child-router',  name: 'child-router', moduleId: './child-router', nav: true, title: 'Child Router' },
-      { route: 'sales', name: 'sales', moduleId: './sales-cr/index', nav: true, title: 'sales' },
-      { route: 'report-sales-payment', name: 'report-sales-payment', moduleId: './report-sales-payment/index', nav: true, title: 'report sales payment' }
-    ]);
+import {Aurelia, inject} from 'aurelia-framework';
+import {Session} from './utils/session';
 
+@inject(Session)
+export class App {
+  constructor(session) {
+    this.session = session;
+  }
+
+  configureRouter(config, router) {
+    config.title = ''; 
+    var routes = [ 
+      { route: ['', 'Welcome'], name: 'welcome', moduleId: './welcome', nav: false, title: 'Home' },
+      { route: 'sales', name: 'sales', moduleId: './modules/sales-cr/index', nav: true, title: 'sales', settings: { group:"transaction", roles:["admin"] } },
+      { route: 'report-sales-payment', name: 'report-sales-payment', moduleId: './modules/report-sales-payment/index', nav: true, title: 'report sales payment',settings: { group:"transaction", roles:["admin"] } }
+    ];
+
+    if (!this.session.isAuthenticated)
+      routes = [
+        { route: ['', 'login'], name: 'login', moduleId: './login', nav: false, title: 'login' }
+      ]
+    else {
+      routes = routes.filter(route => {
+        if (route.settings && route.settings.roles)
+          return route.settings.roles.find(role => {
+            return this.session.roles.indexOf(role) != -1;
+          }) != undefined;
+        else
+          return true;
+      });
+    }
+
+    config.map(routes);
     this.router = router;
   }
 }
+
