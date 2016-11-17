@@ -25,6 +25,7 @@ export class Create {
     }
 
     save() { 
+        //console.log(JSON.stringify(this.data));
         this.service.create(this.data)
             .then(result => {
                 //console.log(result);
