@@ -310,7 +310,7 @@ export class DataForm {
     refreshPromo(indexItem, indexReturnItem) {
         var getPromoes = [];
         var storeId = this.data.storeId;
-        var date = this.data.date; 
+        var date = this.data.date;  
         for(var item of this.data.items) {
             if ( indexItem == -1 || indexItem == this.data.items.indexOf(item) )
             {
@@ -373,64 +373,71 @@ export class DataForm {
         
         Promise.all(getPromoes)
             .then(results => {   
-                var resultIndex = 0; 
-                
+                var resultIndex = 0;
                 for(var item of this.data.items) {
                     var index = this.data.items.indexOf(item); 
                     if ( indexItem == -1 || indexItem == index )
                     {
                         for(var returnItem of item.returnItems) {
                             var returnIndex = item.returnItems.indexOf(returnItem);
-                            if ( indexReturnItem == -1 || indexReturnItem == returnIndex )
+                            if ( indexReturnItem == -1 || indexReturnItem == returnIndex ) 
                             { 
-                                var promoResult = results[resultIndex][0];
-                                if(promoResult) {
-                                    returnItem.promoId = promoResult._id;
-                                    returnItem.promo = promoResult;
-                                    if(promoResult.reward.type == "discount-product")
-                                    {
-                                        for(var reward of promo.reward.rewards) {
-                                            if(reward.unit == "percentage") {
-                                                returnItem.discount1 = reward.discount1;
-                                                returnItem.discount2 = reward.discount2;
-                                            }
-                                            else if(reward.unit == "nominal") {
-                                                returnItem.discountNominal = reward.nominal;
+                                if(results) {
+                                    if(results[resultIndex]) {
+                                        if(results[resultIndex].length > 0) {
+                                            var promoResult = results[resultIndex][0];
+                                            if(promoResult) {
+                                                returnItem.promoId = promoResult._id;
+                                                returnItem.promo = promoResult;
+                                                if(promoResult.reward.type == "discount-product") {
+                                                    for(var reward of promo.reward.rewards) {
+                                                        if(reward.unit == "percentage") {
+                                                            returnItem.discount1 = reward.discount1;
+                                                            returnItem.discount2 = reward.discount2;
+                                                        }
+                                                        else if(reward.unit == "nominal") {
+                                                            returnItem.discountNominal = reward.nominal;
+                                                        }
+                                                    }
+                                                }
+                                                if(promoResult.reward.type == "special-price") {
+                                                    //cek quantity
+                                                    var quantityPaket = 0;
+                                                    for(var item2 of this.data.items) {
+                                                        for(var returnItem2 of item2.returnItems) {
+                                                            if(returnItem.promoId == returnItem2.promoId) {
+                                                                quantityPaket = parseInt(quantityPaket) + parseInt(returnItem2.quantity)
+                                                            }
+                                                        }
+                                                    }
+                                                    
+                                                    //change price
+                                                    for(var item2 of this.data.items) {
+                                                        for(var returnItem2 of item2.returnItems) {
+                                                            if(returnItem.promoId == returnItem2.promoId) {
+                                                                for(var reward of promoResult.reward.rewards) {
+                                                                    if(parseInt(quantityPaket) == 1)
+                                                                        returnItem2.price = parseInt(reward.quantity1);
+                                                                    else if(parseInt(quantityPaket) == 2)
+                                                                        returnItem2.price = parseInt(reward.quantity2);
+                                                                    else if(parseInt(quantityPaket) == 3)
+                                                                        returnItem2.price = parseInt(reward.quantity3);
+                                                                    else if(parseInt(quantityPaket) == 4)
+                                                                        returnItem2.price = parseInt(reward.quantity4);
+                                                                    else if(parseInt(quantityPaket) >= 5)
+                                                                        returnItem2.price = parseInt(reward.quantity5);
+                                                                }  
+                                                                this.sumRow(returnItem2);
+                                                            }
+                                                        } 
+                                                    }
+                                                }
                                             }
                                         }
                                     }
-                                    if(promoResult.reward.type == "special-price") 
-                                    {
-                                        //cek quantity
-                                        var quantityPaket = 0;
-                                        for(var returnItem2 of item.returnItems) {
-                                            if(returnItem.promoId == returnItem2.promoId) {
-                                                quantityPaket = parseInt(quantityPaket) + parseInt(returnItem2.quantity)
-                                            }
-                                        }
-                                        
-                                        //change price
-                                        for(var returnItem2 of item.returnItems) {
-                                            if(returnItem.promoId == returnItem2.promoId) {
-                                                for(var reward of promoResult.reward.rewards) {
-                                                    if(parseInt(quantityPaket) == 1)
-                                                        returnItem2.price = parseInt(reward.quantity1);
-                                                    else if(parseInt(quantityPaket) == 2)
-                                                        returnItem2.price = parseInt(reward.quantity2);
-                                                    else if(parseInt(quantityPaket) == 3)
-                                                        returnItem2.price = parseInt(reward.quantity3);
-                                                    else if(parseInt(quantityPaket) == 4)
-                                                        returnItem2.price = parseInt(reward.quantity4);
-                                                    else if(parseInt(quantityPaket) >= 5)
-                                                        returnItem2.price = parseInt(reward.quantity5);
-                                                }  
-                                                this.sumRow(returnItem2);
-                                            }
-                                        } 
-                                    }
-                                }
+                                } 
                                 this.sumRow(returnItem);
-                                resultIndex += 1;
+                                resultIndex += 1; 
                             }
                         } 
                     }
