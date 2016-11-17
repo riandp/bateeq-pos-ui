@@ -207,7 +207,10 @@ export class DataForm {
             } 
         }
         //this.data.totalDiscount = parseInt(this.data.subTotal) * parseInt(this.data.discount) / 100;
-        this.data.total = parseInt(this.data.subTotal);
+        var payment = parseInt(this.data.subTotal) - parseInt(this.data.subTotalRetur);
+        if(payment < 0)
+            payment = 0; 
+        this.data.total = payment;
         this.data.grandTotal = this.data.total;
         this.refreshDetail();
     }
