@@ -1,8 +1,8 @@
 import {inject, Lazy} from 'aurelia-framework';
 import {HttpClient} from 'aurelia-fetch-client';
-import {RestService} from '../rest-service';
+import {RestService} from '../../rest-service';
   
-const serviceUri = require('../host').sales + '/docs/sales';
+const serviceUri = require('../../host').sales + '/docs/sales';
 export class Service extends RestService{
   
   constructor(http, aggregator) {

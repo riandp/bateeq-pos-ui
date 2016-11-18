@@ -1,11 +1,11 @@
 import {inject, Lazy} from 'aurelia-framework';
 import {HttpClient} from 'aurelia-fetch-client';
-import {RestService} from '../rest-service';
+import {RestService} from '../../rest-service';
 
-const serviceUri = require('../host').sales + '/docs/sales';
-const serviceUriBank = require('../host').master + '/banks';
-const serviceUriCardType = require('../host').master + '/cardtypes';
-const serviceUriPromo = require('../host').sales + '/promos'; 
+const serviceUri = require('../../host').sales + '/docs/sales';
+const serviceUriBank = require('../../host').master + '/banks';
+const serviceUriCardType = require('../../host').master + '/cardtypes';
+const serviceUriPromo = require('../../host').sales + '/promos'; 
 
 export class Service extends RestService {
 
