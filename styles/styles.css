@@ -316,6 +316,12 @@ div.au-stagger {
     line-height: 0.8em;
   }
   
+  .struk {
+    width: 75mm; 
+    overflow: hidden;
+    font-size:8pt;
+  }
+  
   .a4 {
     width: 207mm;
     height: 302mm;
