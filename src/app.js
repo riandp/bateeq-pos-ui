@@ -9,11 +9,14 @@ export class App {
 
   configureRouter(config, router) {
     config.title = ''; 
-    var routes = [ 
+    config.map([
       { route: ['', 'Welcome'], name: 'welcome', moduleId: './welcome', nav: false, title: 'Home' },
+      // { route: 'users',         name: 'users',        moduleId: './users',        nav: true, title: 'Github Users' },
+      // { route: 'child-router',  name: 'child-router', moduleId: './child-router', nav: true, title: 'Child Router' },
       { route: 'sales', name: 'sales', moduleId: './modules/sales-cr/index', nav: true, title: 'sales', settings: { group:"transaction", roles:["admin"] } },
+      { route: 'salesReturn', name: 'salesReturn', moduleId: './modules/sales-return-cr/index', nav: true, title: 'sales return', settings: { group:"transaction", roles:["admin"] } },
       { route: 'report-sales-payment', name: 'report-sales-payment', moduleId: './modules/report-sales-payment/index', nav: true, title: 'report sales payment',settings: { group:"transaction", roles:["admin"] } }
-    ];
+    ]);
 
     if (!this.session.isAuthenticated)
       routes = [
