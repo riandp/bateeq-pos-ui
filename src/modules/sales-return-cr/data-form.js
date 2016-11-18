@@ -8,8 +8,8 @@ export class DataForm {
     @bindable error = {};
         
     //storeApiUri = require('../host').master + '/stores';
-    finishedGoodsApiUri = require('../host').master + '/finishedgoods';
-    salesApiUri = require('../host').sales + '/docs/sales';
+    finishedGoodsApiUri = require('../../host').master + '/finishedgoods';
+    salesApiUri = require('../../host').sales + '/docs/sales';
     voucherApiUri = '';
     
     constructor(router, service, bindingEngine) { 
