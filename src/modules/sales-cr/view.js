@@ -96,13 +96,13 @@ export class View {
         this.printStruk += "    <div class='col-xs-12'> " + this.data.store.address + " </div>";
         this.printStruk += "</div>";
         this.printStruk += "<div class='row'>";
-        this.printStruk += "    <div class='col-xs-12'> Telp: " + this.data.store.telephone + " </div>";
+        this.printStruk += "    <div class='col-xs-12'> Telp: " + this.data.store.phone + " </div>";
         this.printStruk += "</div>";
         this.printStruk += "<div class='row'>";
         this.printStruk += "    <div class='col-xs-12'> No. NPWP: 31.579.110.3-532.000 </div>";
         this.printStruk += "</div>";
         this.printStruk += "<div class='row'>";
-        this.printStruk += "    <div class='col-xs-12'> =============================================== </div>";
+        this.printStruk += "    <div class='col-xs-12'> ====================================================== </div>";
         this.printStruk += "</div>"; 
         this.printStruk += "<div class='row'>";
         this.printStruk += "    <div class='col-xs-3'> Kasir </div>"; 
@@ -117,7 +117,7 @@ export class View {
         this.printStruk += "    <div class='col-xs-9'> " + this.getStringDate(this.data.date) + " " + this.getStringTime(this.data.date) + " </div>"; 
         this.printStruk += "</div>"; 
         this.printStruk += "<div class='row'>";
-        this.printStruk += "    <div class='col-xs-12'> =============================================== </div>";
+        this.printStruk += "    <div class='col-xs-12'> ====================================================== </div>";
         this.printStruk += "</div>";  
         for(var item of this.data.items) {
             var totalPrice = item.quantity * item.price;
@@ -163,7 +163,7 @@ export class View {
             this.printStruk += "</div>";
         } 
         this.printStruk += "<div class='row'>";
-        this.printStruk += "    <div class='col-xs-12'> =============================================== </div>";
+        this.printStruk += "    <div class='col-xs-12'> ====================================================== </div>";
         this.printStruk += "</div>";   
         this.printStruk += "<div>";
         this.printStruk += "    <div class='row'>";
@@ -217,19 +217,19 @@ export class View {
         this.printStruk += "    <div class='col-xs-12'> Hemat: " + hemat.toLocaleString() + " </div>";
         this.printStruk += "</div>";  
         this.printStruk += "<div class='row'>";
-        this.printStruk += "    <div class='col-xs-12'> =============================================== </div>";
+        this.printStruk += "    <div class='col-xs-12'> ====================================================== </div>";
         this.printStruk += "</div>";  
         this.printStruk += "<div class='row'>";
-        this.printStruk += "    <div class='col-xs-12'> <center>Harga sudah termasuk PPN dan tas belanja</center> </div>";
+        this.printStruk += "    <div class='col-xs-12' style='font-size:6pt;'> <center>Harga sudah termasuk PPN dan tas belanja</center> </div>";
         this.printStruk += "</div>";  
         this.printStruk += "<div class='row'>";
-        this.printStruk += "    <div class='col-xs-12'> <center>BARANG CACAT KARENA PRODUSEN DAPAT DITUKAR DALAM 7 HARI</center> </div>";
+        this.printStruk += "    <div class='col-xs-12' style='font-size:6pt;'> <center>BARANG CACAT KARENA PRODUSEN DAPAT DITUKAR DALAM 7 HARI</center> </div>";
         this.printStruk += "</div>";  
         this.printStruk += "<div class='row'>";
-        this.printStruk += "    <div class='col-xs-12'> <center>SETELAH TRANSAKSI</center> </div>";
+        this.printStruk += "    <div class='col-xs-12' style='font-size:6pt;'> <center>SETELAH TRANSAKSI</center> </div>";
         this.printStruk += "</div>";  
         this.printStruk += "<div class='row'>";
-        this.printStruk += "    <div class='col-xs-12'> =============================================== </div>";
+        this.printStruk += "    <div class='col-xs-12'> ====================================================== </div>";
         this.printStruk += "</div>";  
         this.printStruk += "<div class='row'>";
         this.printStruk += "    <div class='col-xs-12'> <center>TERIMA KASIH ATAS KUNJUNGAN ANDA</center> </div>";
