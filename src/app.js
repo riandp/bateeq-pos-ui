@@ -13,7 +13,8 @@ export class App {
       { route: ['', 'Welcome'], name: 'welcome', moduleId: './welcome', nav: false, title: 'Home' },
       { route: 'sales', name: 'sales', moduleId: './modules/sales-cr/index', nav: true, title: 'sales', settings: { group:"transaction", roles:["admin"] } },
       { route: 'salesReturn', name: 'salesReturn', moduleId: './modules/sales-return-cr/index', nav: true, title: 'sales return', settings: { group:"transaction", roles:["admin"] } },
-      { route: 'report-sales-payment', name: 'report-sales-payment', moduleId: './modules/report-sales-payment/index', nav: true, title: 'report sales payment',settings: { group:"transaction", roles:["admin"] } }
+      { route: 'report-sales-payment', name: 'report-sales-payment', moduleId: './modules/report-sales-payment/index', nav: true, title: 'report sales',settings: { group:"transaction", roles:["admin"] } },
+      { route: 'report-sales-return', name: 'report-sales-return', moduleId: './modules/report-sales-return/index', nav: true, title: 'report sales return',settings: { group:"transaction", roles:["admin"] } }
     ]);
     
     var routes = [];
