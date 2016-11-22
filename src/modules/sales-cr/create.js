@@ -9,7 +9,8 @@ export class Create {
     constructor(router, service) {
         this.router = router;
         this.service = service; 
-        this.data = { items: [], salesDetail: { cardType:{}, bank:{}, voucher:{} } };
+        this.data = { items: [], salesDetail: { cardType:{}, bank:{}, voucher:{} } }; 
+        this.error = { items: [] };
     }
 
     activate(params) {
@@ -22,9 +23,20 @@ export class Create {
     
     detail(data) {
         this.router.navigateToRoute('view', { id: data });
-    }
-
+    }  
+     
     save() { 
+        //remove itemId yang kosong
+        for(var i = 0; i < this.data.items.length; ) {
+            var item = this.data.items[i];
+            if(item.itemId == '') {
+                var itemIndex = this.data.items.indexOf(item);
+                this.data.items.splice(itemIndex, 1);
+            }
+            else
+                i++;
+        } 
+         
         this.service.create(this.data)
             .then(result => {
                 //console.log(result);
