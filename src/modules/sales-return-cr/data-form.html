@@ -136,6 +136,7 @@
                                             <thead>
                                                 <tr>
                                                     <th>No.</th>
+                                                    <th>Barcode</th> 
                                                     <th>Produk</th> 
                                                     <th>Qty</th>
                                                     <th>Harga</th>
@@ -151,9 +152,16 @@
                                             <tbody>
                                                 <tr repeat.for="returnItem of item.returnItems">
                                                     <td>${$index+1}</td>
+                                                    <td> 
+                                                        <div class="form-group ${error.items[$parent.$index].returnItems[$index].itemCode?'has-error':''}">  
+                                                            <input type="text" class="form-control" name="itemCode" focus.bind="returnItem.itemCodeFocus" value.bind="returnItem.itemCode" keypress.delegate="onEnterProduct($event, item, returnItem)"/>  
+                                                            <span class="help-block">${error.items[$parent.$index].returnItems[$index].itemCode}</span> 
+                                                        </div>
+                                                    </td>
                                                     <td>
                                                         <div class="form-group ${error.items[$parent.$index].returnItems[$index].itemId?'has-error':''}">
-                                                            <horsey src.bind="finishedGoodsApiUri" selection.bind="returnItem.item" value.bind="returnItem.itemId" options.bind="{value:'_id', label:'name'}" change.delegate="sumRow(returnItem)"></horsey>
+                                                            <!--<horsey src.bind="finishedGoodsApiUri" selection.bind="returnItem.item" value.bind="returnItem.itemId" options.bind="{value:'_id', label:'name'}" change.delegate="sumRow(returnItem)"></horsey>-->
+                                                            <input type="text" class="form-control" name="itemName" value.bind="returnItem.item.name" readonly/>
                                                             <span class="help-block">${error.items[$parent.$index].returnItems[$index].itemId}</span>
                                                         </div>
                                                     </td>

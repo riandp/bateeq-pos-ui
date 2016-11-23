@@ -26,7 +26,55 @@ export class DataForm {
                 this.CardTypes = results[1];
             })          
     }
-
+    
+    onEnterProduct(e, item, returnItem) {
+        var itemIndex = this.data.items.indexOf(item);  
+        var returnItemIndex = this.data.items[itemIndex].returnItems.indexOf(returnItem);  
+        if(e.which == 13) {
+            this.service.getProductByCode(returnItem.itemCode)
+                .then(results => {   
+                    if(results.length > 0) 
+                    {
+                        var resultItem = results[0];
+                        if(resultItem) 
+                        {
+                            var isAny = false;
+                            for(var dataItem of item.returnItems) { 
+                                if(dataItem.itemId == resultItem._id) {
+                                    isAny = true;
+                                    dataItem.itemCode = resultItem.code;
+                                    dataItem.quantity = parseInt(dataItem.quantity) + 1;
+                                    break;
+                                }
+                            } 
+                            if(!isAny) {
+                                returnItem.itemCode = resultItem.code;
+                                returnItem.item = resultItem;
+                                returnItem.itemId = resultItem._id;
+                                returnItem.quantity = parseInt(returnItem.quantity) + 1;
+                            } 
+                        } 
+                        this.error.items[itemIndex].returnItems[returnItemIndex].itemCode = "";
+                        this.rearrangeItemDetail(item, true);
+                    }  
+                    else {
+                        returnItem.itemCode = "";
+                        this.error.items[itemIndex].returnItems[returnItemIndex].itemCode = "Barcode not found"; 
+                    }
+                }) 
+                .catch(e => {
+                    //reject(e);
+                    this.error.items[itemIndex].returnItems[returnItemIndex].itemCode = "Barcode not found"; 
+                })
+        }
+        else {
+            if(!returnItem.itemCode)
+                returnItem.itemCode = "";
+            returnItem.itemCode = returnItem.itemCode + e.key;
+        }
+        e.preventDefault(); // prevent the default action (scroll / move caret)
+    }
+    
     attached() {    
         this.itemReturs = [];
         this.isCard = false;
@@ -79,6 +127,7 @@ export class DataForm {
                         } 
                         this.sumRow(item)
                         this.refreshPromo(index, -1);
+                        this.addItemDetail(index)
                     }); 
                     
                     this.bindingEngine.collectionObserver(item.returnItems)
@@ -88,7 +137,7 @@ export class DataForm {
                             if(returnItem) { 
                                 this.bindingEngine.propertyObserver(returnItem, "itemId").subscribe((newValue, oldValue) => {
                                     returnItem.price = parseInt(returnItem.item.domesticSale);
-                                    returnItem.quantity = 1 + parseInt(returnItem.quantity); 
+                                    //returnItem.quantity = 1 + parseInt(returnItem.quantity); 
                                     this.sumRow(returnItem)
                                     this.refreshPromo(index, returnIndex);
                                 });
@@ -109,6 +158,7 @@ export class DataForm {
                 var item = this.data.items[0];
                 this.removeItem(item); 
             } 
+            this.addItem();
         });
         this.bindingEngine.propertyObserver(this.data, "storeId").subscribe((newValue, oldValue) => {
             this.refreshPromo(-1, -1);
@@ -140,18 +190,25 @@ export class DataForm {
         item.total = 0;
         item.returnItems = [];
         item.itemReturn = {};
+        
+        var errorItem = {}; 
+        errorItem.returnItems = [];
         this.data.items.push(item);
+        this.error.items.push(errorItem); 
         this.sumRow(item)
     } 
     
     removeItem(item) { 
         var itemIndex = this.data.items.indexOf(item);
         this.data.items.splice(itemIndex, 1); 
+        this.error.items.splice(itemIndex, 1);
         this.sumTotal(); 
     }
     
     addItemDetail(index) {
         var item = {};
+        item.itemCode = ''; 
+        item.itemCodeFocus = true;
         item.itemId = '';
         item.item = {};
         item.item.domesticSale = 0;
@@ -163,17 +220,34 @@ export class DataForm {
         item.specialDiscount = 0;
         item.margin = 0;
         item.total = 0;
-        if (!this.data.items[index].returnItems) {
-            this.data.items[index].returnItems = [];
-        }
+        
+        var errorItem = {};
+        errorItem.itemCode = '';
         this.data.items[index].returnItems.push(item);
+        this.error.items[index].returnItems.push(errorItem);
         this.sumRow(item)
     }
 
     removeItemDetail(index, item) {
         var itemIndex = this.data.items[index].returnItems.indexOf(item);
         this.data.items[index].returnItems.splice(itemIndex, 1);
+        this.error.items[index].returnItems.splice(itemIndex, 1);
         this.sumTotal(); 
+        this.refreshPromo(index, -1); 
+    }
+    
+    rearrangeItemDetail(item, isAdd) {  
+        var itemIndex = this.data.items.indexOf(item);  
+        for(var i = 0; i < item.returnItems.length; ) {
+            var returnItem = item.returnItems[i];
+            if(returnItem.itemId == '') {
+                this.removeItemDetail(itemIndex, returnItem);
+            }
+            else
+                i++;
+        } 
+        if(isAdd)
+            this.addItemDetail(itemIndex);
     }
      
     sumRow(item) { 
@@ -354,8 +428,10 @@ export class DataForm {
                                 }
                             }
                         } 
-                        if(isGetPromo)
-                            getPromoes.push(this.service.getPromoByStoreDatetimeItemQuantity(storeId, date, returnItemId, returnQuantity));
+                        if(isGetPromo) {
+                            if(storeId && returnItemId)
+                                getPromoes.push(this.service.getPromoByStoreDatetimeItemQuantity(storeId, date, returnItemId, returnQuantity));
+                        }
                         else  {
                             //langsung copy promo aja
                             returnItem.price = parseInt(item.price);
@@ -381,63 +457,62 @@ export class DataForm {
                     var index = this.data.items.indexOf(item); 
                     if ( indexItem == -1 || indexItem == index )
                     {
-                        for(var returnItem of item.returnItems) {
+                        for(var returnItem of item.returnItems) 
+                        {
                             var returnIndex = item.returnItems.indexOf(returnItem);
                             if ( indexReturnItem == -1 || indexReturnItem == returnIndex ) 
-                            { 
-                                if(results) {
-                                    if(results[resultIndex]) {
-                                        if(results[resultIndex].length > 0) {
-                                            var promoResult = results[resultIndex][0];
-                                            if(promoResult) {
-                                                returnItem.promoId = promoResult._id;
-                                                returnItem.promo = promoResult;
-                                                if(promoResult.reward.type == "discount-product") {
-                                                    for(var reward of promo.reward.rewards) {
-                                                        if(reward.unit == "percentage") {
-                                                            returnItem.discount1 = reward.discount1;
-                                                            returnItem.discount2 = reward.discount2;
-                                                        }
-                                                        else if(reward.unit == "nominal") {
-                                                            returnItem.discountNominal = reward.nominal;
-                                                        }
-                                                    }
+                            {  
+                                if(results[resultIndex]) 
+                                { 
+                                    var promoResult = results[resultIndex][0];
+                                    if(promoResult) 
+                                    {
+                                        returnItem.promoId = promoResult._id;
+                                        returnItem.promo = promoResult;
+                                        if(promoResult.reward.type == "discount-product") {
+                                            for(var reward of promo.reward.rewards) {
+                                                if(reward.unit == "percentage") {
+                                                    returnItem.discount1 = reward.discount1;
+                                                    returnItem.discount2 = reward.discount2;
                                                 }
-                                                if(promoResult.reward.type == "special-price") {
-                                                    //cek quantity
-                                                    var quantityPaket = 0;
-                                                    for(var item2 of this.data.items) {
-                                                        for(var returnItem2 of item2.returnItems) {
-                                                            if(returnItem.promoId == returnItem2.promoId) {
-                                                                quantityPaket = parseInt(quantityPaket) + parseInt(returnItem2.quantity)
-                                                            }
-                                                        }
-                                                    }
-                                                    
-                                                    //change price
-                                                    for(var item2 of this.data.items) {
-                                                        for(var returnItem2 of item2.returnItems) {
-                                                            if(returnItem.promoId == returnItem2.promoId) {
-                                                                for(var reward of promoResult.reward.rewards) {
-                                                                    if(parseInt(quantityPaket) == 1)
-                                                                        returnItem2.price = parseInt(reward.quantity1);
-                                                                    else if(parseInt(quantityPaket) == 2)
-                                                                        returnItem2.price = parseInt(reward.quantity2);
-                                                                    else if(parseInt(quantityPaket) == 3)
-                                                                        returnItem2.price = parseInt(reward.quantity3);
-                                                                    else if(parseInt(quantityPaket) == 4)
-                                                                        returnItem2.price = parseInt(reward.quantity4);
-                                                                    else if(parseInt(quantityPaket) >= 5)
-                                                                        returnItem2.price = parseInt(reward.quantity5);
-                                                                }  
-                                                                this.sumRow(returnItem2);
-                                                            }
-                                                        } 
-                                                    }
+                                                else if(reward.unit == "nominal") {
+                                                    returnItem.discountNominal = reward.nominal;
                                                 }
                                             }
                                         }
-                                    }
+                                        if(promoResult.reward.type == "special-price") {
+                                            //cek quantity
+                                            var quantityPaket = 0;
+                                            for(var item2 of this.data.items) {
+                                                for(var returnItem2 of item2.returnItems) {
+                                                    if(returnItem.promoId == returnItem2.promoId) {
+                                                        quantityPaket = parseInt(quantityPaket) + parseInt(returnItem2.quantity)
+                                                    }
+                                                }
+                                            }
+                                            
+                                            //change price
+                                            for(var item2 of this.data.items) {
+                                                for(var returnItem2 of item2.returnItems) {
+                                                    if(returnItem.promoId == returnItem2.promoId) {
+                                                        for(var reward of promoResult.reward.rewards) {
+                                                            if(parseInt(quantityPaket) == 1)
+                                                                returnItem2.price = parseInt(reward.quantity1);
+                                                            else if(parseInt(quantityPaket) == 2)
+                                                                returnItem2.price = parseInt(reward.quantity2);
+                                                            else if(parseInt(quantityPaket) == 3)
+                                                                returnItem2.price = parseInt(reward.quantity3);
+                                                            else if(parseInt(quantityPaket) == 4)
+                                                                returnItem2.price = parseInt(reward.quantity4);
+                                                            else if(parseInt(quantityPaket) >= 5)
+                                                                returnItem2.price = parseInt(reward.quantity5);
+                                                        }  
+                                                        this.sumRow(returnItem2);
+                                                    }
+                                                } 
+                                            }
+                                        }
+                                    } 
                                 } 
                                 this.sumRow(returnItem);
                                 resultIndex += 1; 
@@ -445,8 +520,7 @@ export class DataForm {
                         } 
                     }
                 } 
-            })
-        
+            }) 
     }
 }
  
