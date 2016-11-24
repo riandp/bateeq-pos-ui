@@ -95,7 +95,7 @@ export class List {
                                     detail.barcode = item.item.code;
                                     detail.namaProduk = item.item.name;
                                     detail.size = item.item.size;
-                                    detail.harga = item.item.domesticSale;
+                                    detail.harga = item.price;
                                     detail.quantity = item.quantity;
                                     detail.omsetBrutto = parseInt(detail.harga) * parseInt(detail.quantity);
                                     detail.discount1Percentage = item.discount1;

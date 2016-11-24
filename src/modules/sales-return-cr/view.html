@@ -3,7 +3,7 @@
         <h3>View Sales</h3>
         <form class="form-horizontal">
             <div class="form-group">
-                <label for="code" class="col-sm-2 control-label">Nomor Retur Pembayaran</label>
+                <label for="code" class="col-sm-2 control-label">Nomor Transaksi Sebelumnya</label>
                 <div class="col-sm-10">
                     <p class="form-control-static">${data.salesDoc.code}</p>
                 </div>
@@ -21,7 +21,13 @@
                 </div>
             </div>  
             <div class="form-group">
-                <label for="storageName" class="col-sm-2 control-label">Toko</label>
+                <label for="storageName" class="col-sm-2 control-label">Toko Asal</label>
+                <div class="col-sm-10">
+                    <p class="form-control-static">${data.salesDoc.store.name}</p>
+                </div>
+            </div>  
+            <div class="form-group">
+                <label for="storageName" class="col-sm-2 control-label">Toko Tujuan</label>
                 <div class="col-sm-10">
                     <p class="form-control-static">${data.store.name}</p>
                 </div>
@@ -45,7 +51,7 @@
                 </div>
             </div>  
             <div class="form-group">
-                <label for="grandTotal" class="col-sm-2 control-label">Total</label>
+                <label for="grandTotal" class="col-sm-2 control-label">Grand Total</label>
                 <div class="col-sm-10">
                     <p class="form-control-static">${data.salesDocReturn.grandTotal.toLocaleString()}</p>
                 </div>
@@ -103,6 +109,7 @@
             <thead>
                 <tr>
                     <th>No.</th>
+                    <th>Retur</th> 
                     <th>Produk</th>
                     <th>Kuantitas</th>
                     <th>Harga</th> 
@@ -112,12 +119,12 @@
                     <th>Margin</th> 
                     <th>Spesial Diskon</th> 
                     <th>Total</th> 
-                    <th>Retur</th> 
                 </tr>
             </thead>
             <tbody>
                 <tr repeat.for="item of data.salesDocReturn.items">
                     <td>${$index+1}</td>
+                    <td>${item.returnStatus}</td>  
                     <td>${item.item.name}  </td> 
                     <td>${item.quantity.toLocaleString()}</td>
                     <td>${item.price.toLocaleString()}</td> 
@@ -127,7 +134,6 @@
                     <td>${item.margin}</td> 
                     <td>${item.specialDiscount}</td> 
                     <td>${item.total.toLocaleString()}</td>  
-                    <td>${item.isReturn}</td>  
                 </tr>
             </tbody>
         </table> 

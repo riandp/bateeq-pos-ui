@@ -48,6 +48,7 @@ export class DataForm {
                                 }
                             } 
                             if(!isAny) {
+                                returnItem.itemCodeReadonly = true;
                                 returnItem.itemCode = resultItem.code;
                                 returnItem.item = resultItem;
                                 returnItem.itemId = resultItem._id;
@@ -67,15 +68,15 @@ export class DataForm {
                     this.error.items[itemIndex].returnItems[returnItemIndex].itemCode = "Barcode not found"; 
                 })
         }
-        else {
-            if(!returnItem.itemCode)
-                returnItem.itemCode = "";
-            returnItem.itemCode = returnItem.itemCode + e.key;
+        else { 
+            if(!returnItem.itemCodeReadonly)
+                returnItem.itemCode = returnItem.itemCode + e.key;
         }
         e.preventDefault(); // prevent the default action (scroll / move caret)
     }
     
     attached() {    
+        this.data.shift = 0;
         this.itemReturs = [];
         this.isCard = false;
         this.isCash = false;
@@ -161,6 +162,14 @@ export class DataForm {
             this.addItem();
         });
         this.bindingEngine.propertyObserver(this.data, "storeId").subscribe((newValue, oldValue) => {
+            var today = new Date();
+            for(var shift of this.data.store.shifts) { 
+                var dateFrom = new Date(this.getUTCStringDate(today) + "T" + this.getUTCStringTime(new Date(shift.dateFrom)));
+                var dateTo = new Date(this.getUTCStringDate(today) + "T" + this.getUTCStringTime(new Date(shift.dateTo)));
+                if( dateFrom < today && today < dateTo ) { 
+                    this.data.shift = shift.shift;
+                }
+            }
             this.refreshPromo(-1, -1);
         });
         this.bindingEngine.propertyObserver(this.data, "date").subscribe((newValue, oldValue) => {
@@ -209,6 +218,7 @@ export class DataForm {
         var item = {};
         item.itemCode = ''; 
         item.itemCodeFocus = true;
+        item.itemCodeReadonly = false;
         item.itemId = '';
         item.item = {};
         item.item.domesticSale = 0;
@@ -312,6 +322,7 @@ export class DataForm {
         this.data.total = parseInt(this.data.grandTotal) - parseInt(this.data.salesDetail.voucher.value);
         if(this.data.total < 0)
             this.data.total = 0;
+        this.data.sisaBayar = this.data.total;
 
         if(this.isCash && this.isCard) { //partial
             this.data.salesDetail.cardAmount = parseInt(this.data.total) - parseInt(this.data.salesDetail.cashAmount);
@@ -328,6 +339,10 @@ export class DataForm {
         if(refund < 0)
             refund = 0;
         this.data.salesDetail.refund = refund;
+        
+        this.data.sisaBayar = this.data.total - this.data.salesDetail.cashAmount - this.data.salesDetail.cardAmount;
+        if(this.data.sisaBayar < 0)
+            this.data.sisaBayar = 0;
     }
     
     getStringDate(date) { 
@@ -420,7 +435,7 @@ export class DataForm {
                         if(ro == returnRo) {
                             isGetPromo = false;
                         }  
-                        else if(promo.reward.type == "special-price") {
+                        else if(promo.reward && promo.reward.type == "special-price") {
                             for(var criterion of promo.criteria.criterions) {
                                 if(returnItemId == criterion.itemId) {
                                     isGetPromo = false;
@@ -438,10 +453,12 @@ export class DataForm {
                             returnItem.discount1 = parseInt(item.discount1);
                             returnItem.discount2 = parseInt(item.discount2);
                             returnItem.discountNominal = parseInt(item.discountNominal);
-                            returnItem.specialDiscount = parseInt(item.specialDiscount);
+                            returnItem.specialDiscount = parseInt(item.specialDiscount).toString();
                             returnItem.margin = parseInt(item.margin);
                             returnItem.promoId = item.promoId;
                             returnItem.promo = item.promo;
+                            console.log(item.promo);
+                            console.log(returnItem.promo.name);
                             this.sumRow(returnItem);
                             getPromoes.push(Promise.resolve(null)); 
                         } 

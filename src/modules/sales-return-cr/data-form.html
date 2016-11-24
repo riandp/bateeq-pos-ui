@@ -4,6 +4,14 @@
         
         <store-auto-suggest label="Toko" value.bind="data.store" error.bind="error.storeId" read-only.bind="readOnly" change.delegate="storeChanged($event)"></store-auto-suggest>
           
+        <div class="form-group ${error.shift?'has-error':''}">
+            <label for="shift" class="col-sm-2 control-label">Shift</label>
+            <div class="col-sm-10"> 
+                <input type="number" class="form-control" name="shift" value.bind="data.shift" readonly/>  
+                <span class="help-block">${error.shift}</span>
+            </div>
+        </div>
+        
         <div class="form-group ${error.reference?'has-error':''}">
             <label for="reference" class="col-sm-2 control-label">Nomor Transaksi</label>
             <div class="col-sm-10"> 
@@ -39,7 +47,7 @@
         </div> 
         
         <div class="form-group ${error.items?'has-error':''}">
-            <button click.delegate="addItem()" class="btn btn-success btn-sm pull-right">Tambah Produk</button>
+            <button click.delegate="addItem()" class="btn btn-success btn-sm pull-right">Tambah Retur</button>
             <table class="table"> 
                 <tr repeat.for="item of data.items">
                     <td colspan="12">
@@ -57,7 +65,7 @@
                                     <th>Diskon Spesial</th>
                                     <th>Margin (%)</th>
                                     <th>Total</th>
-                                    <th><button href="#" class="btn btn-danger btn-sm pull-right" click.delegate="removeItem(item)">Hapus Produk</button></th>
+                                    <th><button href="#" class="btn btn-danger btn-sm pull-right" click.delegate="removeItem(item)">Hapus Retur</button></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -154,7 +162,7 @@
                                                     <td>${$index+1}</td>
                                                     <td> 
                                                         <div class="form-group ${error.items[$parent.$index].returnItems[$index].itemCode?'has-error':''}">  
-                                                            <input type="text" class="form-control" name="itemCode" focus.bind="returnItem.itemCodeFocus" value.bind="returnItem.itemCode" keypress.delegate="onEnterProduct($event, item, returnItem)"/>  
+                                                            <input type="text" class="form-control" name="itemCode" focus.bind="returnItem.itemCodeFocus" readonly.bind="returnItem.itemCodeReadonly" value.bind="returnItem.itemCode" keypress.delegate="onEnterProduct($event, item, returnItem)"/>  
                                                             <span class="help-block">${error.items[$parent.$index].returnItems[$index].itemCode}</span> 
                                                         </div>
                                                     </td>
@@ -340,11 +348,11 @@
                     <span class="help-block">${error.salesDetail.voucher.value}</span>
                 </div>
             </div> 
-            <div class="form-group ${error.total?'has-error':''}">
-                <label for="total" class="col-sm-2 control-label">Sisa Bayar</label>
+            <div class="form-group ${error.sisaBayar?'has-error':''}">
+                <label for="sisaBayar" class="col-sm-2 control-label">Sisa Bayar</label>
                 <div class="col-sm-10"> 
-                    <input type="number" class="form-control" name="total" value.bind="data.total" readonly/> 
-                    <span class="help-block">${error.total}</span>  
+                    <input type="number" class="form-control" name="sisaBayar" value.bind="data.sisaBayar" readonly/> 
+                    <span class="help-block">${error.sisaBayar}</span>  
                 </div>
             </div>
             <div class="form-group ${error.salesDetail.cardAmount?'has-error':''}" if.bind="isCard">

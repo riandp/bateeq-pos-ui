@@ -15,7 +15,8 @@ export class Service extends RestService {
     }
 
     search(keyword) {
-        return super.get(serviceUri);
+        var endpoint = `${serviceUri}?keyword=${keyword}`;
+        return super.get(endpoint);
     }
 
     getById(id) {
