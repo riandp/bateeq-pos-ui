@@ -1,0 +1,364 @@
+<template>
+    <require from="customs/elements/horsey"></require>
+    <form class="form-horizontal"> 
+        
+        <store-auto-suggest label="Toko" value.bind="data.store" error.bind="error.storeId" read-only.bind="readOnly" change.delegate="storeChanged($event)"></store-auto-suggest>
+          
+        <div class="form-group ${error.reference?'has-error':''}">
+            <label for="reference" class="col-sm-2 control-label">Nomor Transaksi</label>
+            <div class="col-sm-10"> 
+                <horsey src.bind="salesApiUri" selection.bind="data.sales" value.bind="data.reference" options.bind="{value:'_id', label:'code'}"></horsey>
+                <span class="help-block">${error.reference}</span>
+            </div>
+        </div> 
+        
+        <!--<textbox label="Toko Asal" value.bind="data.sales.store.name" read-only.bind="readOnly"></textbox>-->
+        <div class="form-group">
+            <label for="tokoAsal" class="col-sm-2 control-label">Toko Asal</label>
+            <div class="col-sm-10"> 
+                <input type="text" class="form-control" name="tokoAsal" value.bind="data.sales.store.name" readonly/>  
+            </div>
+        </div>
+        
+        <!--<datepicker label="Tanggal Transaksi" value.bind="data.datePicker" error.bind="error.date"></datepicker>-->
+        <div class="form-group ${error.date?'has-error':''}">
+            <label for="date" class="col-sm-2 control-label">Tanggal Transaksi</label>
+            <div class="col-sm-10"> 
+                <input type="date" class="form-control" name="date" value.bind="data.datePicker" change.delegate="setDate()"/>  
+                <span class="help-block">${error.date}</span>
+            </div>
+        </div>
+        
+        <!--<textbox label="Keterangan" value.bind="data.remark" error.bind="error.remark"></textbox>-->
+        <div class="form-group ${error.remark?'has-error':''}">
+            <label for="description" class="col-sm-2 control-label">Keterangan</label>
+            <div class="col-sm-10"> 
+                <input type="text" class="form-control" name="remark" value.bind="data.remark"/>  
+                <span class="help-block">${error.remark}</span>
+            </div>
+        </div> 
+        
+        <div class="form-group ${error.items?'has-error':''}">
+            <button click.delegate="addItem()" class="btn btn-success btn-sm pull-right">Tambah Produk</button>
+            <table class="table"> 
+                <tr repeat.for="item of data.items">
+                    <td colspan="12">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>No.</th>
+                                    <th>Produk</th> 
+                                    <th>Qty</th>
+                                    <th>Qty Retur</th>
+                                    <th>Harga</th>
+                                    <th>Diskon 1 (%)</th>
+                                    <th>Diskon 2 (%)</th>
+                                    <th>Diskon Nominal</th>
+                                    <th>Diskon Spesial</th>
+                                    <th>Margin (%)</th>
+                                    <th>Total</th>
+                                    <th><button href="#" class="btn btn-danger btn-sm pull-right" click.delegate="removeItem(item)">Hapus Produk</button></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>${$index+1}</td>
+                                    <td>
+                                        <div class="form-group ${error.items[$index].itemId?'has-error':''}">
+                                            <!--<horsey src.bind="finishedGoodsApiUri" selection.bind="item.item" value.bind="item.itemId" options.bind="{value:'_id', label:'name'}" change.delegate="sumRow(item)"></horsey>-->
+                                            <select class="form-control" name="item" value.bind="item.itemId">
+                                                <option value=""></option>
+                                                <option repeat.for="itemRetur of itemReturs" value="${itemRetur.itemId}">${itemRetur.item.name}</option>
+                                            </select>
+                                            <span class="help-block">${error.items[$index].itemId}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-group ${error.items[$index].quantityPurchase?'has-error':''}">
+                                            <input class="form-control" type="number" name="quantityPurchase" value.bind="item.quantityPurchase" change.delegate="sumRow(item)" readonly/>
+                                            <span class="help-block">${error.items[$index].quantityPurchase}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-group ${error.items[$index].quantity?'has-error':''}">
+                                            <input class="form-control" type="number" name="quantity" value.bind="item.quantity" change.delegate="sumRow(item)" />
+                                            <span class="help-block">${error.items[$index].quantity}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-group ${error.items[$index].price?'has-error':''}">
+                                            <input class="form-control" type="number" name="price" value.bind="item.price" change.delegate="sumRow(item)" readonly/>
+                                            <span class="help-block">${error.items[$index].price}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-group ${error.items[$index].discount1?'has-error':''}">
+                                            <input class="form-control" type="number" name="discount1" value.bind="item.discount1" change.delegate="sumRow(item)" readonly/>
+                                            <span class="help-block">${error.items[$index].discount1}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-group ${error.items[$index].discount2?'has-error':''}">
+                                            <input class="form-control" type="number" name="discount2" value.bind="item.discount2" change.delegate="sumRow(item)" readonly/>
+                                            <span class="help-block">${error.items[$index].discount2}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-group ${error.items[$index].discountNominal?'has-error':''}">
+                                            <input class="form-control" type="number" name="discount2" value.bind="item.discountNominal" change.delegate="sumRow(item)" readonly/>
+                                            <span class="help-block">${error.items[$index].discountNominal}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-group ${error.items[$index].specialDiscount?'has-error':''}"> 
+                                            <input class="form-control" type="number" name="specialDiscount" value.bind="item.specialDiscount" change.delegate="sumRow(item)" readonly/>
+                                            <span class="help-block">${error.items[$index].specialDiscount}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-group ${error.items[$index].margin?'has-error':''}">
+                                            <input class="form-control" type="number" name="margin" value.bind="item.margin" change.delegate="sumRow(item)" readonly/>
+                                            <span class="help-block">${error.items[$index].margin}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-group ${error.items[$index].total?'has-error':''}">
+                                            <input class="form-control" type="number" name="total" value.bind="item.total" readonly />
+                                            <span class="help-block">${error.items[$index].total}</span>
+                                        </div>
+                                    </td> 
+                                    <td> <button click.delegate="addItemDetail($index)" class="btn btn-success btn-sm pull-right">Tambah Produk Baru</button> </td>
+                                </tr>  
+                                <tr if.bind="item.returnItems.length > 0">
+                                    <td></td>
+                                    <td colspan="11">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>No.</th>
+                                                    <th>Produk</th> 
+                                                    <th>Qty</th>
+                                                    <th>Harga</th>
+                                                    <th>Diskon 1 (%)</th>
+                                                    <th>Diskon 2 (%)</th>
+                                                    <th>Diskon Nominal</th>
+                                                    <th>Diskon Spesial</th>
+                                                    <th>Margin (%)</th>
+                                                    <th>Total</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr repeat.for="returnItem of item.returnItems">
+                                                    <td>${$index+1}</td>
+                                                    <td>
+                                                        <div class="form-group ${error.items[$parent.$index].returnItems[$index].itemId?'has-error':''}">
+                                                            <horsey src.bind="finishedGoodsApiUri" selection.bind="returnItem.item" value.bind="returnItem.itemId" options.bind="{value:'_id', label:'name'}" change.delegate="sumRow(returnItem)"></horsey>
+                                                            <span class="help-block">${error.items[$parent.$index].returnItems[$index].itemId}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="form-group ${error.items[$parent.$index].returnItems[$index].quantity?'has-error':''}">
+                                                            <input class="form-control" type="number" name="quantity" value.bind="returnItem.quantity" change.delegate="sumRow(returnItem)"/>
+                                                            <span class="help-block">${error.items[$parent.$index].returnItems[$index].quantity}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="form-group ${error.items[$parent.$index].returnItems[$index].price?'has-error':''}">
+                                                            <input class="form-control" type="number" name="price" value.bind="returnItem.price" change.delegate="sumRow(returnItem)" readonly/>
+                                                            <span class="help-block">${error.items[$parent.$index].returnItems[$index].price}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="form-group ${error.items[$parent.$index].returnItems[$index].discount1?'has-error':''}">
+                                                            <input class="form-control" type="number" name="discount1" value.bind="returnItem.discount1" change.delegate="sumRow(returnItem)"/>
+                                                            <span class="help-block">${error.items[$parent.$index].returnItems[$index].discount1}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="form-group ${error.items[$parent.$index].returnItems[$index].discount2?'has-error':''}">
+                                                            <input class="form-control" type="number" name="discount2" value.bind="returnItem.discount2" change.delegate="sumRow(returnItem)"/>
+                                                            <span class="help-block">${error.items[$parent.$index].returnItems[$index].discount2}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="form-group ${error.items[$parent.$index].returnItems[$index].discountNominal?'has-error':''}">
+                                                            <input class="form-control" type="number" name="discount2" value.bind="returnItem.discountNominal" change.delegate="sumRow(returnItem)"/>
+                                                            <span class="help-block">${error.items[$parent.$index].returnItems[$index].discountNominal}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="form-group ${error.items[$parent.$index].returnItems[$index].specialDiscount?'has-error':''}"> 
+                                                            <select class="form-control" name="specialDiscount" value.bind="returnItem.specialDiscount" change.delegate="sumRow(returnItem)"/>
+                                                                <option value="0">0%</option>
+                                                                <option value="5">5%</option>
+                                                                <option value="10">10%</option>
+                                                                <option value="15">15%</option>
+                                                                <option value="20">20%</option>
+                                                                <option value="25">25%</option>
+                                                                <option value="30">30%</option>
+                                                                <option value="35">35%</option>
+                                                                <option value="40">40%</option>
+                                                                <option value="45">45%</option>
+                                                                <option value="50">50%</option>
+                                                                <option value="55">55%</option>
+                                                                <option value="60">60%</option>
+                                                                <option value="65">65%</option>
+                                                                <option value="70">70%</option>
+                                                                <option value="75">75%</option>
+                                                                <option value="80">80%</option>
+                                                                <option value="85">85%</option>
+                                                                <option value="90">90%</option>
+                                                                <option value="95">95%</option>
+                                                                <option value="100">100%</option>
+                                                            </select>
+                                                            <span class="help-block">${error.items[$parent.$index].returnItems[$index].specialDiscount}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="form-group ${error.items[$parent.$index].returnItems[$index].margin?'has-error':''}">
+                                                            <input class="form-control" type="number" name="margin" value.bind="returnItem.margin" change.delegate="sumRow(returnItem)"/>
+                                                            <span class="help-block">${error.items[$parent.$index].returnItems[$index].margin}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="form-group ${error.items[$parent.$index].returnItems[$index].total?'has-error':''}">
+                                                            <input class="form-control" type="number" name="total" value.bind="returnItem.total" readonly />
+                                                            <span class="help-block">${error.items[$parent.$index].returnItems[$index].total}</span>
+                                                        </div>
+                                                    </td> 
+                                                    <td> <button href="#" class="btn btn-danger btn-sm pull-right" click.delegate="removeItemDetail($parent.$index, returnItem)">Hapus Produk Baru</button> </td>
+                                                </tr>   
+                                            </tbody> 
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table> 
+                    </td>
+                </tr>           
+                <tr if.bind="data.items.length > 0">
+                    <td colspan="10" style="text-align:right;">Sub Total Barang Retur</td>
+                    <td style="text-align:right;">${data.subTotalRetur}</td>
+                    <td></td> 
+                </tr>
+                <tr if.bind="data.items.length > 0"> 
+                    <td colspan="10" style="text-align:right;">Sub Total Barang Baru</td>
+                    <td style="text-align:right;">${data.subTotal}</td>
+                    <td></td> 
+                </tr>
+                <tr if.bind="data.items.length > 0"> 
+                    <td colspan="10" style="text-align:right;">Grand Total</td>
+                    <td style="text-align:right;">${data.grandTotal}</td>
+                    <td></td> 
+                </tr> 
+            </table>
+            <!--<span class="help-block">${error.items}</span>-->
+        </div>
+    </form> 
+    
+    <div>
+        <form class="form-horizontal"> 
+            <div class="form-group">
+                <label for="totalProduct" class="col-sm-2 control-label">Total Qty</label>
+                <div class="col-sm-10"> 
+                    <input type="number" class="form-control" name="totalProduct" value.bind="data.totalProduct" readonly/> 
+                </div>
+            </div>
+            <div class="form-group ${error.salesDetail.paymentType?'has-error':''}">
+                <label for="paymentType" class="col-sm-2 control-label">Tipe Pembayaran</label>
+                <div class="col-sm-10">
+                    <select class="form-control" name="paymentType" value.bind="data.salesDetail.paymentType" change.delegate="checkPaymentType()">
+                        <option value=""></option>
+                        <option value="Cash">Cash</option>
+                        <option value="Card">Card</option>
+                        <option value="Partial">Partial</option> 
+                    </select>
+                    <span class="help-block">${error.salesDetail.paymentType}</span>
+                </div>
+            </div>  
+            <div class="form-group ${error.salesDetail.card?'has-error':''}" if.bind="isCard"> 
+                <label for="card" class="col-sm-2 control-label">Jenis Kartu</label>
+                <div class="col-sm-10"> 
+                    <input type="radio" name="card" checked.bind="data.salesDetail.card" value="Debit"/> Debit
+                    <input type="radio" name="card" checked.bind="data.salesDetail.card" value="Credit"/> Kredit  
+                    <span class="help-block">${error.salesDetail.card}</span>
+                </div>
+            </div> 
+            <div class="form-group ${error.salesDetail.cardTypeId?'has-error':''}" if.bind="isCard">
+                <label for="cardTypeId" class="col-sm-2 control-label">Kartu</label>
+                <div class="col-sm-10">
+                    <select class="form-control" name="cardType" value.bind="data.salesDetail.cardTypeId"> 
+                        <option value=""></option>
+                        <option repeat.for="cardType of CardTypes" value="${cardType._id}">${cardType.name}</option>
+                    </select>
+                    <span class="help-block">${error.salesDetail.cardTypeId}</span>
+                </div>
+            </div>  
+            <div class="form-group ${error.salesDetail.bankId?'has-error':''}" if.bind="isCard">
+                <label for="bankId" class="col-sm-2 control-label">Bank / EDC</label>
+                <div class="col-sm-10">
+                    <select class="form-control" name="bank" value.bind="data.salesDetail.bankId">
+                        <option value=""></option>
+                        <option repeat.for="bank of Banks" value="${bank._id}">${bank.name}</option>
+                    </select>
+                    <span class="help-block">${error.salesDetail.bankId}</span>
+                </div>
+            </div>  
+            <div class="form-group ${error.salesDetail.cardNumber?'has-error':''}" if.bind="isCard">
+                <label for="cardNumber" class="col-sm-2 control-label">Nomor Kartu</label>
+                <div class="col-sm-10"> 
+                    <input type="text" class="form-control" name="cardNumber" value.bind="data.salesDetail.cardNumber"/>  
+                    <span class="help-block">${error.salesDetail.cardNumber}</span>
+                </div>
+            </div>
+            <div class="form-group ${error.salesDetail.cardName?'has-error':''}" if.bind="isCard">
+                <label for="cardName" class="col-sm-2 control-label">Nama Kartu</label>
+                <div class="col-sm-10"> 
+                    <input type="text" class="form-control" name="cardName" value.bind="data.salesDetail.cardName"/>  
+                    <span class="help-block">${error.salesDetail.cardName}</span>
+                </div>
+            </div> 
+            <div class="form-group">
+                <label for="grandTotal" class="col-sm-2 control-label">Total Bayar</label>
+                <div class="col-sm-10"> 
+                    <input type="number" class="form-control" name="grandTotal" value.bind="data.grandTotal" readonly/> 
+                </div>
+            </div>
+            <div class="form-group ${error.salesDetail.voucher.value?'has-error':''}">
+                <label for="voucher" class="col-sm-2 control-label">Voucher</label>
+                <div class="col-sm-10"> 
+                    <input type="text" class="form-control" name="voucher" value.bind="data.salesDetail.voucher.value" change.delegate="refreshVoucher()"/>  
+                    <span class="help-block">${error.salesDetail.voucher.value}</span>
+                </div>
+            </div> 
+            <div class="form-group ${error.total?'has-error':''}">
+                <label for="total" class="col-sm-2 control-label">Sisa Bayar</label>
+                <div class="col-sm-10"> 
+                    <input type="number" class="form-control" name="total" value.bind="data.total" readonly/> 
+                    <span class="help-block">${error.total}</span>  
+                </div>
+            </div>
+            <div class="form-group ${error.salesDetail.cardAmount?'has-error':''}" if.bind="isCard">
+                <label for="cardAmount" class="col-sm-2 control-label">Card</label>
+                <div class="col-sm-10"> 
+                    <input type="number" class="form-control" name="cardAmount" value.bind="data.salesDetail.cardAmount" change.delegate="refreshDetail()" readonly/>  
+                    <span class="help-block">${error.salesDetail.cardAmount}</span>
+                </div>
+            </div> 
+            <div class="form-group ${error.salesDetail.cashAmount?'has-error':''}" if.bind="isCash">
+                <label for="cashAmount" class="col-sm-2 control-label">Cash</label>
+                <div class="col-sm-10"> 
+                    <input type="number" class="form-control" name="cashAmount" value.bind="data.salesDetail.cashAmount" change.delegate="refreshDetail()"/>  
+                    <span class="help-block">${error.salesDetail.cashAmount}</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="refund" class="col-sm-2 control-label">Kembali</label>
+                <div class="col-sm-10"> 
+                    <input type="number" class="form-control" name="refund" value.bind="data.salesDetail.refund" readonly/>   
+                </div>
+            </div> 
+        </form>
+    </div>
+</template>
