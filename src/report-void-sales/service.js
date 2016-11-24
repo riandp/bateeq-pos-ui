@@ -17,6 +17,29 @@ export class Service extends RestService{
     return super.get(endpoint);
   }
 
+  getAllSalesAllStore(storeName, dateFrom, dateTo, shift, typeAllStore)
+  {
+    var endpoint = `${serviceUri}/${storeName}/${dateFrom}/${dateTo}/${shift}/${typeAllStore}`;
+    return super.get(endpoint);
+  }
+
+    getAllSalesAllShift(storeName, dateFrom, dateTo, shift, typeAllStore, typeAllShift)
+  {
+    var endpoint = `${serviceUri}/${storeName}/${dateFrom}/${dateTo}/${shift}/${typeAllStore}/${typeAllShift}`;
+    return super.get(endpoint);
+  }
+    getAllSalesAllStoreAllShift(storeName, dateFrom, dateTo, shift, typeAllStore, typeAllShift, typeAllStoreAllShift)
+  {
+    var endpoint = `${serviceUri}/${storeName}/${dateFrom}/${dateTo}/${shift}/${typeAllStore}/${typeAllShift}/${typeAllStoreAllShift}`;
+    return super.get(endpoint);
+  }
+  getAllSalesAllStoreAllShiftNoStoreNoShift(storeName, dateFrom, dateTo, shift, typeAllStore, typeAllShift, typeAllStoreAllShift, typeNoStoreNoShift)
+  {
+    var endpoint = `${serviceUri}/${storeName}/${dateFrom}/${dateTo}/${shift}/${typeAllStore}/${typeAllShift}/${typeAllStoreAllShift}/${typeNoStoreNoShift}`;
+    return super.get(endpoint);
+  }
+  
+
   search(keyword) {
     return super.get(serviceUri);
   }
@@ -57,9 +80,4 @@ export class Service extends RestService{
         return super.get(serviceUriStore);
     }
 
-    createTransferIn(data)
-  {
-      var endpoint = `${serviceUriTransferInDoc}`;
-      return super.post(endpoint, data);
-  }
 }

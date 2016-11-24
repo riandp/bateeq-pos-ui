@@ -21,6 +21,13 @@ export class List {
         this.setDateTo();
         this.isFilter = false;
         this.reportHTML = ""
+
+        var getData = [];
+        getData.push(this.service.getStore());
+        Promise.all(getData)
+        .then(results => { 
+            this.Stores = results[0];
+        })  
         
         this.totalQty = 0;
         this.totalCash = 0;
@@ -66,11 +73,14 @@ export class List {
             this.error.filter.dateTo = "Date To must bigger than from";
         else{ 
             var getData = [];
+            var e = document.getElementById("ddlShift");
+            var strUser = e.options[e.selectedIndex].text;
             for(var d = datefrom; d <= dateto; d.setDate(d.getDate() + 1)) {
                 var date = new Date(d);
                 var fromString = this.getStringDate(date) + 'T00:00:00'; 
                 var toString = this.getStringDate(date) + 'T23:59:59';
-                getData.push(this.service.getAllSalesByFilter(this.data.filter.storeId, fromString, toString));
+
+                getData.push(this.service.getAllSalesByFilter(this.data.filter.storeId, fromString, toString, strUser));
             }
             Promise.all(getData)
                 .then(salesPerDays => {   
@@ -92,6 +102,7 @@ export class List {
                                 result.tanggal = new Date(data.date);
                                 
                                 itemData.nomorPembayaran = data.code;
+                                itemData.isVoid = data.isVoid;
                                 itemData.voucherNominal = parseInt(data.salesDetail.voucher.value);
                                 if(data.salesDetail.cashAmount!=0 && data.salesDetail.cardAmount == 0)
                                     itemData.cashNominal = parseInt(data.grandTotal)-parseInt(data.salesDetail.voucher.value);
@@ -222,6 +233,8 @@ export class List {
         this.reportHTML += "        </thead>";
         this.reportHTML += "        <tbody>";
 
+            var totalTransaksi = 0;
+        var totalTotalTransaksi = 0;
         
         for(var data of this.data.results) {
             var isTanggalRowSpan = false;
@@ -230,12 +243,19 @@ export class List {
             var tempCredit = 0;
             var tempVoucher = 0;
                 for(var item of data.items){
+                    if(!item.isVoid)
+                    {
+                    totalTransaksi ++;
                     tempCash+=item.cashNominal;
                     tempDebit+=item.debitNominal;
                     tempCredit+=item.creditNominal;
                     tempVoucher+=item.voucherNominal;
                 }
+                }
             for(var item of data.items) {
+                if(!item.isVoid)
+                    {
+                        totalTotalTransaksi++;
                 var isItemRowSpan = false;
                     this.reportHTML += "        <tr>";
                     
@@ -243,7 +263,7 @@ export class List {
                         this.reportHTML += "        <td width='300px' rowspan='" + data.tanggalRowSpan + "'>" + data.tanggal.getDate() + " " + months[data.tanggal.getMonth()] + " " + data.tanggal.getFullYear()+"</td>";
                         
                          if(!isTanggalRowSpan)
-                        this.reportHTML += "        <td rowspan='" + data.tanggalRowSpan + "'>" + data.items.length +"</td>";
+                        this.reportHTML += "        <td rowspan='" + data.tanggalRowSpan + "'>" + totalTransaksi +"</td>";
                     
                         
                          if(!isTanggalRowSpan)
@@ -259,34 +279,40 @@ export class List {
                          if(!isTanggalRowSpan)
                         this.reportHTML += "            <td rowspan='" + data.tanggalRowSpan + "'>" + tempVoucher +"</td>";
                         var totalOmset = tempCash+tempCredit+tempDebit+tempVoucher;
-
                          if(!isTanggalRowSpan)
                         this.reportHTML += "            <td rowspan='" + data.tanggalRowSpan + "'>"+totalOmset+"</td>";
                     this.reportHTML += "        </tr>";
                     isTanggalRowSpan = true;
+                    }
                     isItemRowSpan = true;
                 
+                    this.reportHTML += "<tr></tr>";
                     
         }
+                        
+        
+                    this.reportHTML += "<tr></tr>";
         } 
             this.reportHTML += "        <td>Total</td>";
-            var totalTransaksi = 0;
             var totalCash = 0;
             var totalDebit = 0;
             var totalCredit = 0;
             var totalVoucher = 0;
             for(var data of this.data.results) {
-                    totalTransaksi += data.items.length;
+                
                     for(var item of data.items) {
+                        if(!item.isVoid)
+                        {
                         totalCash += item.cashNominal;
                         totalDebit += item.debitNominal;
                         totalCredit += item.creditNominal;
                         totalVoucher += item.voucherNominal;
                     }    
+                    }
             }
             this.totalCash = totalCash;
             var totalTotalOmset = totalCash+totalCredit+totalDebit+totalVoucher;
-            this.reportHTML += "        <td style='background-color:#48cbe2;'>"+totalTransaksi+"</td>";
+            this.reportHTML += "        <td style='background-color:#48cbe2;'>"+totalTotalTransaksi+"</td>";
             this.reportHTML += "        <td style='background-color:#48cbe2;'>"+totalCash.toLocaleString()+"</td>";
             this.reportHTML += "        <td style='background-color:#48cbe2;'>"+totalDebit.toLocaleString()+"</td>";
             this.reportHTML += "        <td style='background-color:#48cbe2;'>"+totalCredit.toLocaleString()+"</td>";
@@ -342,16 +368,19 @@ export class List {
                         var isItemRowSpan = 0;
 
                     for(var item of data.items){
+                        if(!item.isVoid)
+                        {
                         if(item.bank == unique[j] && item.bank != "Cash"){
                             tempDebit+=item.debitNominalLainnya;
                             tempCredit+=item.creditNominalLainnya;
                             tempCreditMaster+=item.creditMasterNominal;
                             tempCreditVisa+=item.creditVisaNominal;
                             }
+                        }
                     }
                                 
                     for(var item of data.items) {
-                            if(item.bank == unique[j] && item.bank != "Cash"){
+                            if(item.bank == unique[j] && item.bank != "Cash" && !item.isVoid){
                                 
                             this.reportHTML += "        <tr>";
                                 if(!isTanggalRowSpan)

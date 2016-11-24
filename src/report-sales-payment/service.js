@@ -9,9 +9,10 @@ export class Service extends RestService{
     super(http, aggregator);
   } 
 
-  getAllSalesByFilter(store, dateFrom, dateTo)
+  getAllSalesByFilter(store, dateFrom, dateTo, shift)
   {
-    var endpoint = `${serviceUri}/${store}/${dateFrom}/${dateTo}`;
+    var endpoint = `${serviceUri}/${store}/${dateFrom}/${dateTo}/${shift}`;
     return super.get(endpoint);
-  } 
+  }
+  
 }
