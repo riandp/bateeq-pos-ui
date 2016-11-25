@@ -6,7 +6,7 @@ import {Service} from './service';
 @inject(Router, Service, BindingEngine)
 export class List {
     
-    storeApiUri = require('../host').master + '/stores';
+    storeApiUri = require('../../host').master + '/stores';
     
     constructor(router, service, bindingEngine) {
         this.router = router;

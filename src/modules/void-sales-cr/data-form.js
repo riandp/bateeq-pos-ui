@@ -6,10 +6,10 @@ import {Service} from './service';
 export class DataForm { 
     @bindable data = {};
     @bindable error = {};
-    storageApiUri = require('../host').inventory + '/storages';
-    variantApiUri = require('../host').core + '/articles/variants';
-        storeApiUri = require('../host').master + '/stores';
-    finishedGoodsApiUri = require('../host').master + '/finishedgoods';
+    storageApiUri = require('../../host').inventory + '/storages';
+    variantApiUri = require('../../host').core + '/articles/variants';
+        storeApiUri = require('../../host').master + '/stores';
+    finishedGoodsApiUri = require('../../host').master + '/finishedgoods';
 
     
     constructor(router, service, bindingEngine) { 
@@ -17,8 +17,7 @@ export class DataForm {
         this.service = service;
         this.bindingEngine = bindingEngine; 
         
-        this.salesApiUri = require('../host').sales + '/docs/sales';
-        this.salesApiUri = require('../host').sales + '/docs/sales'+'/storename=null/'+this.dateFromPicker+'/'+ this.dateToPicker+'/shift=null/typeAllStore=true/typeAllShift=true/typeAllStoreAllShift=true';
+        this.salesApiUri = require('../../host').sales + '/docs/salesvoids'+'/'+this.dateFromPicker+'/'+ this.dateToPicker;
         
 
         this.isCard = false;
@@ -93,8 +92,7 @@ export class DataForm {
 
     setCombobox()
     {
-        alert(this.salesApiUri);
-        //this.salesApiUri = this.storeApiUri;
+       //this.salesApiUri = this.storeApiUri;
         // var ddlStore = document.getElementById("ddlStore");
         // var textDdlStore = ddlStore.options[ddlStore.selectedIndex].text;
         // alert(textDdlStore);
@@ -113,8 +111,7 @@ export class DataForm {
         
         // var datefrom = new Date(this.data.filter.dateFrom);
         // var dateto = new Date(this.data.filter.dateTo);
-        this.salesApiUri = require('../host').sales + '/docs/sales'+'/storename=null/'+this.dateFromPicker+'/'+ this.dateToPicker+'/shift=null/typeAllStore=true/typeAllShift=true/typeAllStoreAllShift=true';
-        alert(this.salesApiUri);
+        this.salesApiUri = require('../../host').sales + '/docs/salesvoids'+'/'+this.dateFromPicker+'/'+ this.dateToPicker;
         //getDataTrans.push(this.service.getAllSalesAllStoreAllShift("storename=null", datefrom, dateto, "shift=null", "typeAllStore=true", "typeAllShift=true", "typeAllStoreAllShift=true"));
         //getDataTrans.push(this.service.getTransByStoreName(textDdlStore, true));
         

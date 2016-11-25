@@ -6,7 +6,7 @@ import {Service} from './service';
 @inject(Router, Service, BindingEngine)
 export class List {
     
-    storeApiUri = require('../host').master + '/stores';
+    storeApiUri = require('../../host').master + '/stores';
     
     constructor(router, service, bindingEngine) {
         this.router = router;
@@ -80,23 +80,8 @@ export class List {
                 var date = new Date(d);
                 var fromString = this.getStringDate(date) + 'T00:00:00'; 
                 var toString = this.getStringDate(date) + 'T23:59:59';
-                if(textDdlStore=="semua" && textDdlShift!="semua")
-                {
-                getData.push(this.service.getAllSalesAllStore("storeName=null", fromString, toString, textDdlShift, "typeAllStore=true"));
-                }
-                else if(textDdlShift=="semua" && textDdlStore!="semua")
-                {
-                getData.push(this.service.getAllSalesAllShift(textDdlStore, fromString, toString, "storeShift=null", "typeAllStore=false", "typeAllShift=true"));
-                }
-                else if(textDdlStore=="semua" && textDdlShift=="semua")
-                {
-                getData.push(this.service.getAllSalesAllStoreAllShift("storeName=null", fromString, toString, "storeShift=null", "typeAllStore=true","typeAllShift=true", "typeAllStoreAllShift=true"));
+                getData.push(this.service.getAllSalesByFilter(textDdlStore, fromString, toString, textDdlShift));
                 
-                }
-                else if(textDdlStore!="semua" && textDdlShift!="semua")
-                {
-                getData.push(this.service.getAllSalesAllStoreAllShiftNoStoreNoShift(textDdlStore, fromString, toString, textDdlShift, "typeAllStore=false","typeAllShift=false", "typeAllStoreAllShift=false", "typeNoStoreNoShift=true"));
-                }
         }
             Promise.all(getData)
                 .then(salesPerDays => {   

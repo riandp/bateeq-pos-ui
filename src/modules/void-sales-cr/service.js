@@ -1,14 +1,14 @@
 import {inject, Lazy} from 'aurelia-framework';
 import {HttpClient} from 'aurelia-fetch-client';
-import {RestService} from '../rest-service';
+import {RestService} from '../../rest-service';
 
-const serviceUri = require('../host').sales + '/docs/sales';
-const serviceUriUpdate = require('../host').sales + '/docs/sales';
-const serviceUriBank = require('../host').master + '/banks';
-const serviceUriCardType = require('../host').master + '/cardtypes';
-const serviceUriPromo = require('../host').sales + '/promos'; 
-    const serviceUriStore = require('../host').master + '/stores';
-        const serviceUriTransferInDoc = require('../host').inventory + '/docs/transfer-in';
+const serviceUri = require('../../host').sales + '/docs/salesvoids';
+const serviceUriUpdate = require('../../host').sales + '/docs/sales';
+const serviceUriBank = require('../../host').master + '/banks';
+const serviceUriCardType = require('../../host').master + '/cardtypes';
+const serviceUriPromo = require('../../host').sales + '/promos'; 
+    const serviceUriStore = require('../../host').master + '/stores';
+        const serviceUriTransferInDoc = require('../../host').inventory + '/docs/transfer-in';
 
 
 export class Service extends RestService {
@@ -17,8 +17,8 @@ export class Service extends RestService {
         super(http, aggregator);
     }
 
-    search(allDate, allCode, allStore) {
-        var endpoint = `${serviceUri}/${allDate}/${allCode}/${allStore}`;
+    search() {
+        var endpoint = `${serviceUri}`;
         return super.get(endpoint);
     }
 

@@ -13,7 +13,7 @@ export class List {
 
     activate() {
         //getAllSalesByVoidTrue
-        this.service.search('allDate', 'allCode', 'allStore')
+        this.service.search('')
             .then(data => {
                 
                 this.data = data;
