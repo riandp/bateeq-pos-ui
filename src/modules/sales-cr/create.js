@@ -38,8 +38,8 @@ export class Create {
         }
         this.service.create(this.data)
             .then(response => { 
-                this.detail(response.headers.get('Id'));
-                //this.list();
+                //this.detail(response.headers.get('Id'));
+                this.list();
             })
             .catch(e => {
                 this.error = e;
