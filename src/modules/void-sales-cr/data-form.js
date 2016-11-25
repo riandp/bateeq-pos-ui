@@ -17,7 +17,8 @@ export class DataForm {
         this.service = service;
         this.bindingEngine = bindingEngine; 
         
-        this.salesApiUri = require('../../host').sales + '/docs/salesvoids'+'/'+this.dateFromPicker+'/'+ this.dateToPicker;
+        this.salesApiUri = require('../../host').sales + '/docs/salesvoids';
+        //this.salesApiUri = require('../../host').sales + '/docs/sales'+'/storename=null/'+this.dateFromPicker+'/'+ this.dateToPicker+'/shift=null/typeAllStore=true/typeAllShift=true/typeAllStoreAllShift=true';
         
 
         this.isCard = false;
@@ -111,7 +112,10 @@ export class DataForm {
         
         // var datefrom = new Date(this.data.filter.dateFrom);
         // var dateto = new Date(this.data.filter.dateTo);
-        this.salesApiUri = require('../../host').sales + '/docs/salesvoids'+'/'+this.dateFromPicker+'/'+ this.dateToPicker;
+        this.salesApiUri = require('../../host').sales + '/docs/salesvoids';
+        
+        //this.salesApiUri = require('../../host').sales + '/docs/sales'+'/storename=null/'+this.dateFromPicker+'/'+ this.dateToPicker+'/shift=null/typeAllStore=true/typeAllShift=true/typeAllStoreAllShift=true';
+        alert(this.salesApiUri);
         //getDataTrans.push(this.service.getAllSalesAllStoreAllShift("storename=null", datefrom, dateto, "shift=null", "typeAllStore=true", "typeAllShift=true", "typeAllStoreAllShift=true"));
         //getDataTrans.push(this.service.getTransByStoreName(textDdlStore, true));
         
