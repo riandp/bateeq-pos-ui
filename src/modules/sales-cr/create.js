@@ -37,10 +37,9 @@ export class Create {
                 i++;
         }
         this.service.create(this.data)
-            .then(response => {
-                console.log(response);
-                this.detail(response.headers.get('Id'));
-                //this.list();
+            .then(response => { 
+                //this.detail(response.headers.get('Id'));
+                this.list();
             })
             .catch(e => {
                 this.error = e;

@@ -93,54 +93,59 @@ export class List {
                                 itemData.details = [];
                                 result.tanggal = new Date(data.date);
                                 for (var item of data.items) {
-                                    var detail = {};
-                                    detail.barcode = item.item.code;
-                                    detail.namaProduk = item.item.name;
-                                    detail.size = item.item.size;
-                                    detail.harga = item.price;
-                                    detail.quantity = item.quantity;
-                                    detail.omsetBrutto = parseInt(detail.harga) * parseInt(detail.quantity);
-                                    detail.discount1Percentage = item.discount1;
-                                    detail.discount1Nominal = parseInt(detail.omsetBrutto) * parseInt(detail.discount1Percentage) / 100;
-                                    detail.discount1Netto = parseInt(detail.omsetBrutto) - parseInt(detail.discount1Nominal);
-                                    detail.discount2Percentage = item.discount2;
-                                    detail.discount2Nominal = parseInt(detail.discount1Netto) * parseInt(detail.discount2Percentage) / 100;
-                                    detail.discount2Netto = parseInt(detail.discount1Netto) - parseInt(detail.discount2Nominal);
-                                    detail.discountNominal = item.discountNominal;
-                                    detail.discountNominalNetto = parseInt(detail.discount2Netto) - parseInt(detail.discountNominal);
-                                    detail.discountSpecialPercentage = item.specialDiscount;
-                                    detail.discountSpecialNominal = parseInt(detail.discountNominalNetto) * parseInt(detail.discountSpecialPercentage) / 100;
-                                    detail.discountSpecialNetto = parseInt(detail.discountNominalNetto) - parseInt(detail.discountSpecialNominal);
-                                    detail.discountMarginPercentage = item.margin;
-                                    detail.discountMarginNominal = parseInt(detail.discountSpecialNetto) * parseInt(detail.discountMarginPercentage) / 100;
-                                    detail.discountMarginNetto = parseInt(detail.discountSpecialNetto) - parseInt(detail.discountMarginNominal);
-                                    detail.total = parseInt(detail.discountMarginNetto);
+                                    if(!item.isReturn) {
+                                        var detail = {};
+                                        detail.barcode = item.item.code;
+                                        detail.namaProduk = item.item.name;
+                                        detail.size = item.item.size;
+                                        detail.harga = item.price;
+                                        detail.quantity = item.quantity;
+                                        detail.omsetBrutto = parseInt(detail.harga) * parseInt(detail.quantity);
+                                        detail.discount1Percentage = item.discount1;
+                                        detail.discount1Nominal = parseInt(detail.omsetBrutto) * parseInt(detail.discount1Percentage) / 100;
+                                        detail.discount1Netto = parseInt(detail.omsetBrutto) - parseInt(detail.discount1Nominal);
+                                        detail.discount2Percentage = item.discount2;
+                                        detail.discount2Nominal = parseInt(detail.discount1Netto) * parseInt(detail.discount2Percentage) / 100;
+                                        detail.discount2Netto = parseInt(detail.discount1Netto) - parseInt(detail.discount2Nominal);
+                                        detail.discountNominal = item.discountNominal;
+                                        detail.discountNominalNetto = parseInt(detail.discount2Netto) - parseInt(detail.discountNominal);
+                                        detail.discountSpecialPercentage = item.specialDiscount;
+                                        detail.discountSpecialNominal = parseInt(detail.discountNominalNetto) * parseInt(detail.discountSpecialPercentage) / 100;
+                                        detail.discountSpecialNetto = parseInt(detail.discountNominalNetto) - parseInt(detail.discountSpecialNominal);
+                                        detail.discountMarginPercentage = item.margin;
+                                        detail.discountMarginNominal = parseInt(detail.discountSpecialNetto) * parseInt(detail.discountMarginPercentage) / 100;
+                                        detail.discountMarginNetto = parseInt(detail.discountSpecialNetto) - parseInt(detail.discountMarginNominal);
+                                        detail.total = parseInt(detail.discountMarginNetto);
 
-                                    subtotal = parseInt(subtotal) + parseInt(detail.total);
-                                    itemData.details.push(detail);
+                                        subtotal = parseInt(subtotal) + parseInt(detail.total);
+                                        itemData.details.push(detail);
 
-                                    totalQty += parseInt(detail.quantity);
-                                    totalOmsetBruto += parseInt(detail.omsetBrutto);
-                                    totalDiscount1Nominal += parseInt(detail.discount1Nominal);
-                                    totalDiscount1Netto += parseInt(detail.discount1Netto);
-                                    totalDiscount2Nominal += parseInt(detail.discount2Nominal);
-                                    totalDiscount2Netto += parseInt(detail.discount2Netto);
-                                    totalDiscountNominal += parseInt(detail.discountNominal);
-                                    totalDiscountNominalNetto += parseInt(detail.discountNominalNetto);
-                                    totalDiscountSpecialNominal += parseInt(detail.discountSpecialNominal);
-                                    totalDiscountSpecialNetto += parseInt(detail.discountSpecialNetto);
-                                    totalDiscountMarginNominal += parseInt(detail.discountMarginNominal);
-                                    totalDiscountMarginNetto += parseInt(detail.discountMarginNetto);
-                                    totalTotal += parseInt(detail.total);
+                                        totalQty += parseInt(detail.quantity);
+                                        totalOmsetBruto += parseInt(detail.omsetBrutto);
+                                        totalDiscount1Nominal += parseInt(detail.discount1Nominal);
+                                        totalDiscount1Netto += parseInt(detail.discount1Netto);
+                                        totalDiscount2Nominal += parseInt(detail.discount2Nominal);
+                                        totalDiscount2Netto += parseInt(detail.discount2Netto);
+                                        totalDiscountNominal += parseInt(detail.discountNominal);
+                                        totalDiscountNominalNetto += parseInt(detail.discountNominalNetto);
+                                        totalDiscountSpecialNominal += parseInt(detail.discountSpecialNominal);
+                                        totalDiscountSpecialNetto += parseInt(detail.discountSpecialNetto);
+                                        totalDiscountMarginNominal += parseInt(detail.discountMarginNominal);
+                                        totalDiscountMarginNetto += parseInt(detail.discountMarginNetto);
+                                        totalTotal += parseInt(detail.total);
 
-                                    tanggalRowSpan += 1;
-                                    itemRowSpan += 1;
+                                        tanggalRowSpan += 1;
+                                        itemRowSpan += 1;
+                                    }
                                 }
                                 itemData.nomorPembayaran = data.code;
-                                itemData.subTotal = parseInt(subtotal);
+                                itemData.transaksi = data.isReturn ? "Retur" : "";
+                                //itemData.subTotal = parseInt(subtotal);
+                                itemData.subTotal = parseInt(data.subTotal);
                                 itemData.discountSalePercentage = data.discount;
                                 itemData.discountSaleNominal = parseInt(itemData.subTotal) * parseInt(itemData.discountSalePercentage) / 100;
-                                itemData.grandTotal = parseInt(itemData.subTotal) - parseInt(itemData.discountSaleNominal);
+                                //itemData.grandTotal = parseInt(itemData.subTotal) - parseInt(itemData.discountSaleNominal);
+                                itemData.grandTotal = parseInt(data.grandTotal);
                                 itemData.tipePembayaran = data.salesDetail.paymentType;
                                 itemData.card = data.salesDetail.cardType.name ? data.salesDetail.cardType.name : "";
                                 itemData.itemRowSpan = itemRowSpan;
@@ -214,6 +219,7 @@ export class List {
         this.reportHTML += "            <tr style='background-color:#282828; color:#ffffff;'>";
         this.reportHTML += "                <th>Tanggal</th>";
         this.reportHTML += "                <th>No Pembayaran</th>";
+        this.reportHTML += "                <th>Transaksi</th>";
         this.reportHTML += "                <th>Barcode</th>";
         this.reportHTML += "                <th>Nama Produk</th>";
         this.reportHTML += "                <th>Size</th>";
@@ -238,7 +244,7 @@ export class List {
         this.reportHTML += "                <th>Subtotal</th>";
         this.reportHTML += "                <th>Disc Penjualan (%)</th>";
         this.reportHTML += "                <th>Disc Penjualan (Nominal)</th>";
-        this.reportHTML += "                <th>Grand Total</th>";
+        this.reportHTML += "                <th>Omset on Hand</th>";
         this.reportHTML += "                <th>Tipe Pembayaran</th>";
         this.reportHTML += "                <th>Kartu</th>";
         this.reportHTML += "            </tr>";
@@ -252,8 +258,10 @@ export class List {
                     this.reportHTML += "        <tr>";
                     if (!isTanggalRowSpan)
                         this.reportHTML += "        <td width='300px' rowspan='" + data.tanggalRowSpan + "'>" + data.tanggal.getDate() + " " + months[data.tanggal.getMonth()] + " " + data.tanggal.getFullYear() + "</td>";
-                    if (!isItemRowSpan)
+                    if (!isItemRowSpan) {
                         this.reportHTML += "        <td rowspan='" + item.itemRowSpan + "'>" + item.nomorPembayaran + "</td>";
+                        this.reportHTML += "        <td rowspan='" + item.itemRowSpan + "'>" + item.transaksi + "</td>";
+                    }
                     this.reportHTML += "            <td>" + itemDetail.barcode + "</td>";
                     this.reportHTML += "            <td>" + itemDetail.namaProduk + "</td>";
                     this.reportHTML += "            <td>" + itemDetail.size + "</td>";
@@ -289,6 +297,7 @@ export class List {
                 }
             }
             this.reportHTML += "    <tr style='background-color:#282828; color:#ffffff;'>";
+            this.reportHTML += "        <td></td>";
             this.reportHTML += "        <td></td>";
             this.reportHTML += "        <td></td>";
             this.reportHTML += "        <td></td>";
