@@ -1,0 +1,180 @@
+<template>
+    <require from="customs/elements/horsey"></require>
+    <h3>Report Void Sales</h3>
+    <div class="display-wrapper">
+    <form class="form-horizontal"> 
+        
+        
+        <div class="form-group ${error.filter.storeId?'has-error':''}">
+            <label for="store" class="col-sm-2 control-label">Toko</label>
+            <div class="col-sm-10">
+                    <select class="form-control" name="shift" id="ddlStore">
+                        <option value="semua">Semua</option>
+                        <option repeat.for="store of Stores" value="${store.name}">${store.name}</option>
+                    </select>
+                    <span class="help-block">${error.salesDetail.cardTypeId}</span>
+                </div>
+        </div>
+        <div class="form-group ${error.filter.dateFrom?'has-error':''}">
+            <label for="dateFrom" class="col-sm-2 control-label">From</label>
+            <div class="col-sm-10"> 
+                <input type="date" class="form-control" name="date" value.bind="dateFromPicker" change.delegate="setDateFrom()"/>
+                <span class="help-block">${error.filter.dateFrom}</span>
+            </div>
+        </div> 
+        <div class="form-group ${error.filter.dateTo?'has-error':''}">
+            <label for="dateTo" class="col-sm-2 control-label">To</label>
+            <div class="col-sm-10"> 
+                <input type="date" class="form-control" name="date" value.bind="dateToPicker" change.delegate="setDateTo()"/>
+                <span class="help-block">${error.filter.dateTo}</span>
+            </div>
+        </div>
+        
+        <div class="form-group ${error.filter.storeId?'has-error':''}">
+            <label for="store" class="col-sm-2 control-label">Shift</label>
+            <div class="col-sm-10">
+                    <select class="form-control" name="shift" id="ddlShift">
+                        <!--<option repeat.for="store of Stores" value="${store._id}">${store.name}</option>-->
+                        <option value="semua">Semua</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                                
+                    </select>
+                    <span class="help-block">${error.salesDetail.cardTypeId}</span>
+                </div>
+        </div>
+        <div class="btn-group col-sm-12">
+            <button class="btn btn-success pull-right" click.delegate="filter()">View Report</button>
+        </div> 
+        <div class="col-sm-12" if.bind="isFilter"> 
+            <div class="pre-scrollable" innerHTML.bind="reportHTML | sanitizeHTML"></div>
+            <div class="pre-scrollable" innerHTML.bind="reportHTMLDetail | sanitizeHTML"></div>
+            
+           
+        
+        </div>  
+        </div>
+        
+        <div class="print-wrapper a4">
+        <div class="row"><center><label class="header">REKAP SETORAN</label></center><br/></div>
+        <div class="row">
+            <div class="col-xs-6"">
+                <div class="row">
+                    <div>
+                        Store Name : 
+                    
+                        ${data.filter.store.name}
+
+                        <br><br>
+                    </div>
+                </div> 
+                <div class="row">
+                    <div>
+                        Store Address :
+
+                        ${data.filter.store.address}
+
+                        <br><br>
+                    </div>
+                </div>
+                <div class="row">
+                    <div>
+                        Store Phone :
+                        
+                        ${data.filter.store.phone}
+
+                        <br><br>
+                    </div>
+                </div>
+                <div class="row">
+                    <div>
+                        Kasir : (yang sedang login)
+                        
+                        <br><br>
+                    </div>
+                </div>
+                <div class="row">
+                    <div>
+                        Shift
+                        
+                        <br><br>
+                    </div>
+                </div>
+                <div class="row">
+                    <div>
+                        Tanggal :
+
+                        ${dateToPicker}
+                        
+                        <br><br>
+                    </div>
+                </div>
+                <div class="row">
+                    <div>
+                      ==================
+                      
+                        <br><br>  
+                    </div>
+                </div>
+                <div class="row">
+                    <div>
+                        Saldo Awal :
+                        
+                        ${data.filter.store.salesCapital}
+                        <br><br>
+                        
+                    </div>
+                </div>
+                <div class="row">
+                    <div>
+                        Tunai / Cash :
+
+                        ${totalCash}
+                        
+                        <br><br>
+                    </div>
+                </div>
+                <div class="row">
+                    <div>
+                        <table class="table table-bordered">
+            
+                            <thead>
+                            <tr>
+                            <th class="text-center">Bank</th> 
+                            <th class="text-center">Debit Card</th> 
+                            <th class="text-center">Credit Card</th> 
+                            <th class="text-center">Credit Visa</th> 
+                            <th class="text-center">Credit Master</th> 
+                            </tr>
+                            </thead>
+                            <tbody>
+                                
+                                        <tr repeat.for="bank of unique">
+                                        <td class="text-center">${bank}</td>
+                                        <td class="text-center">${arrTotalTempDebit[$index]}</td>
+                                        <td class="text-center">${arrTotalTempCredit[$index]}</td>
+                                        <td class="text-center">${arrTotalTempCreditVisa[$index]}</td>
+                                        <td class="text-center">${arrTotalTempCreditMaster[$index]}</td>
+                                        </tr>
+
+                            
+                            </tbody>
+                            
+                        </table>
+                        <div>SUBTOTAL : ${subtotalArrTotal}</div>
+                    </div>
+                </div>
+            </div>  
+            <br/>
+        </div>
+        
+        <div style="page-break-after:always;"></div>
+    </div><!-- /.print-wrapper -->
+        
+        
+        
+    </form> 
+</template>

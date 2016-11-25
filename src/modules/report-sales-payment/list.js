@@ -52,13 +52,15 @@ export class List {
         else if (dateto < datefrom)
             this.error.filter.dateTo = "Date To must bigger than from";
         else {
-            var getData = [];
-            for (var d = datefrom; d <= dateto; d.setDate(d.getDate() + 1)) {
+            var getData = []; 
+            var e = document.getElementById("ddlShift");
+            var strUser = e.options[e.selectedIndex].text;
+            for(var d = datefrom; d <= dateto; d.setDate(d.getDate() + 1)) { 
                 var date = new Date(d);
                 var fromString = this.getStringDate(date) + 'T00:00:00';
                 var toString = this.getStringDate(date) + 'T23:59:59';
-                getData.push(this.service.getAllSalesByFilter(this.data.filter.storeId, fromString, toString));
-            }
+                getData.push(this.service.getAllSalesByFilter(this.data.filter.storeId, fromString, toString, strUser));
+           }
             Promise.all(getData)
                 .then(salesPerDays => {
                     this.data.results = [];
