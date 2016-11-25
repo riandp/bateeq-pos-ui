@@ -9,12 +9,12 @@ export class List {
     constructor(router, service) {
         this.router = router;
         this.service = service;
+        this.filter = "";
     }
 
     activate() {
-        this.service.search('')
-            .then(data => {
-                
+        this.service.search(this.filter)
+            .then(data => { 
                 this.data = data;
             })
     }
@@ -25,5 +25,12 @@ export class List {
     
     create() {
         this.router.navigateToRoute('create');
+    }
+    
+    filterData() {
+        this.service.search(this.filter)
+            .then(data => { 
+                this.data = data;
+            })
     }
 }

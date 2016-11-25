@@ -1,5 +1,9 @@
 <template>
     <h3>Pembayaran</h3>
+    
+    <b>Filter</b> : <input type="text" value.bind="filter"/> 
+    <input type="button" value="Filter" click.delegate="filterData()"/>
+    
     <table class="table table-striped table-hover">
         <thead>
             <tr>

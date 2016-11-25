@@ -6,6 +6,7 @@ const serviceUri = require('../../host').sales + '/docs/salesreturns';
 const serviceUriBank = require('../../host').master + '/banks';
 const serviceUriCardType = require('../../host').master + '/cardtypes';
 const serviceUriPromo = require('../../host').sales + '/promos'; 
+const serviceUriFinishedgood = require('../../host').master + '/finishedgoods';
 
 export class Service extends RestService {
 
@@ -14,7 +15,8 @@ export class Service extends RestService {
     }
 
     search(keyword) {
-        return super.get(serviceUri);
+        var endpoint = `${serviceUri}?keyword=${keyword}`;
+        return super.get(endpoint);
     }
 
     getById(id) {
@@ -23,8 +25,20 @@ export class Service extends RestService {
     }
 
     create(data) {
-        var endpoint = `${serviceUri}`;
-        return super.post(endpoint, data);
+        var endpoint = `${serviceUri}`; 
+        var header = '';
+        var request = {
+            method: 'POST',
+            headers: new Headers(Object.assign({}, this.header, header)),
+            body: JSON.stringify(data)
+        };
+        var postRequest = this.http.fetch(endpoint, request);
+        this.publish(postRequest);
+        return postRequest
+            .then(response => {
+                return response;
+            }) 
+        //return super.post(endpoint, data);
     } 
     
     getBank() {
@@ -37,6 +51,11 @@ export class Service extends RestService {
     
     getPromoByStoreDatetimeItemQuantity(storeId, datetime, itemId, quantity) {
         var endpoint = `${serviceUriPromo}/${storeId}/${datetime}/${itemId}/${quantity}`;
+        return super.get(endpoint);
+    }
+    
+    getProductByCode(code) {
+        var endpoint = `${serviceUriFinishedgood}/code/${code}`;
         return super.get(endpoint);
     }
 }

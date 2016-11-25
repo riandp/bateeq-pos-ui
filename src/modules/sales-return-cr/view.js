@@ -16,6 +16,12 @@ export class View {
         this.service.getById(id)
         .then(data=>{
             this.data = data;
+            for(var item of this.data.salesDocReturn.items) {
+                item.returnStatus = "Barang Baru";
+                if(item.isReturn)
+                    item.returnStatus = "Retur"; 
+            }
+            
             this.checkPaymentType();
             this.generatePrintStruk();
         })

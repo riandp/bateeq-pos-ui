@@ -10,6 +10,7 @@ export class Create {
         this.router = router;
         this.service = service; 
         this.data = { items: [], salesDetail: { cardType:{}, bank:{}, voucher:{} } };
+        this.error = { items: [] };
     }
 
     activate(params) {
@@ -25,12 +26,31 @@ export class Create {
     }
 
     save() { 
-        //console.log(JSON.stringify(this.data));
+        //remove itemId yang kosong
+        for(var i = 0; i < this.data.items.length; ) {
+            var item = this.data.items[i];
+            if(item.itemId == '') {
+                var itemIndex = this.data.items.indexOf(item);
+                this.data.items.splice(itemIndex, 1);
+            }
+            else{
+                i++;
+                for(var j = 0; j < item.returnItems.length; ) {
+                    var returnItem = item.returnItems[j];
+                    if(returnItem.itemId == '') {
+                        var returnItemIndex = item.returnItems.indexOf(returnItem);
+                        item.returnItems.splice(returnItemIndex, 1);
+                    }
+                    else{
+                        j++; 
+                    }
+                }  
+            }
+        } 
         this.service.create(this.data)
-            .then(result => {
-                //console.log(result);
-                //this.detail(result);
-                this.list();
+            .then(response => {
+                this.detail(response.headers.get('Id'));
+                //this.list();
             })
             .catch(e => {
                 this.error = e;

@@ -49,6 +49,7 @@ export class DataForm {
                                 }
                             } 
                             if(!isAny) {
+                                item.itemCodeReadonly = true;
                                 item.itemCode = resultItem.code;
                                 item.item = resultItem;
                                 item.itemId = resultItem._id;
@@ -69,9 +70,8 @@ export class DataForm {
                 })
         }
         else {
-            if(!item.itemCode)
-                item.itemCode = "";
-            item.itemCode = item.itemCode + e.key;
+            if(!item.itemCodeReadonly)
+                item.itemCode = item.itemCode + e.key;
         }
         e.preventDefault(); // prevent the default action (scroll / move caret)
     }
@@ -144,6 +144,7 @@ export class DataForm {
         item.margin = 0;
         item.total = 0;
         item.itemCodeFocus = true;
+        item.itemCodeReadonly = false;
         
         var errorItem = {};
         errorItem.itemCode = '';
@@ -202,6 +203,7 @@ export class DataForm {
         }
         this.data.totalDiscount = parseInt(this.data.subTotal) * parseInt(this.data.discount) / 100;
         this.data.total = parseInt(this.data.subTotal) - parseInt(this.data.totalDiscount);
+        this.data.sisaBayar = parseInt(this.data.total);
         this.data.grandTotal = parseInt(this.data.total);
         this.data.totalBayar = parseInt(this.data.grandTotal);
         this.refreshDetail();
@@ -213,10 +215,10 @@ export class DataForm {
     }
     
     refreshDetail() {
-        this.data.total = 0;
         this.data.total = parseInt(this.data.grandTotal) - parseInt(this.data.salesDetail.voucher.value);
         if(this.data.total < 0)
             this.data.total = 0;
+        this.data.sisaBayar = this.data.total;
 
         if(this.isCash && this.isCard) { //partial
             this.data.salesDetail.cardAmount = parseInt(this.data.total) - parseInt(this.data.salesDetail.cashAmount);
@@ -233,6 +235,10 @@ export class DataForm {
         if(refund < 0)
             refund = 0;
         this.data.salesDetail.refund = refund;
+        
+        this.data.sisaBayar = this.data.total - this.data.salesDetail.cashAmount - this.data.salesDetail.cardAmount;
+        if(this.data.sisaBayar < 0)
+            this.data.sisaBayar = 0;
     }
     
     checkPaymentType() {

@@ -15,7 +15,8 @@ export class Service extends RestService {
     }
 
     search(keyword) {
-        return super.get(serviceUri);
+        var endpoint = `${serviceUri}?keyword=${keyword}`;
+        return super.get(endpoint);
     }
 
     getById(id) {
@@ -25,7 +26,24 @@ export class Service extends RestService {
 
     create(data) {
         var endpoint = `${serviceUri}`;
-        return super.post(endpoint, data);
+        var header = '';
+        var request = {
+            method: 'POST',
+            headers: new Headers(Object.assign({}, this.header, header)),
+            body: JSON.stringify(data)
+        };
+        var postRequest = this.http.fetch(endpoint, request);
+        this.publish(postRequest);
+        return postRequest
+            .then(response => {
+                return response;
+            })
+            // .then(result => {
+            //     console.log(result);
+            //     this.publish(postRequest);
+            //     return this.parseResult(result);
+            // }); 
+        //return super.post(endpoint, data);
     } 
     
     getBank() {
