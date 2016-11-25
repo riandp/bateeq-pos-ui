@@ -457,8 +457,6 @@ export class DataForm {
                             returnItem.margin = parseInt(item.margin);
                             returnItem.promoId = item.promoId;
                             returnItem.promo = item.promo;
-                            console.log(item.promo);
-                            console.log(returnItem.promo.name);
                             this.sumRow(returnItem);
                             getPromoes.push(Promise.resolve(null)); 
                         } 

@@ -33,24 +33,24 @@ export class Service extends RestService {
 
     create(data) {
         var endpoint = `${serviceUri}`;
-        var header = '';
-        var request = {
-            method: 'POST',
-            headers: new Headers(Object.assign({}, this.header, header)),
-            body: JSON.stringify(data)
-        };
-        var postRequest = this.http.fetch(endpoint, request);
-        this.publish(postRequest);
-        return postRequest
-            .then(response => {
-                return response;
-            })
-            // .then(result => {
-            //     console.log(result);
-            //     this.publish(postRequest);
-            //     return this.parseResult(result);
-            // }); 
-        //return super.post(endpoint, data);
+        // var header = '';
+        // var request = {
+        //     method: 'POST',
+        //     headers: new Headers(Object.assign({}, super.header, header)),
+        //     body: JSON.stringify(data)
+        // };
+        // var postRequest = this.http.fetch(endpoint, request);
+        // super.publish(postRequest);
+        // return postRequest
+        //     .then(response => {
+        //         return response;
+        //         //return response.json();
+        //     })
+        //     .then(result => { 
+        //         super.publish(postRequest);
+        //         return super.parseResult(result);
+        //     }); 
+        return super.post(endpoint, data);
     } 
     
     getBank() {
