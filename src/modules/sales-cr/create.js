@@ -35,13 +35,12 @@ export class Create {
             }
             else
                 i++;
-        } 
-         
+        }
         this.service.create(this.data)
-            .then(result => {
-                //console.log(result);
-                //this.detail(result);
-                this.list();
+            .then(response => {
+                console.log(response);
+                this.detail(response.headers.get('Id'));
+                //this.list();
             })
             .catch(e => {
                 this.error = e;

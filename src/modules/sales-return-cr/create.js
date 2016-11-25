@@ -47,13 +47,10 @@ export class Create {
                 }  
             }
         } 
-        
-        //console.log(JSON.stringify(this.data));
         this.service.create(this.data)
-            .then(result => {
-                //console.log(result);
-                //this.detail(result);
-                this.list();
+            .then(response => {
+                this.detail(response.headers.get('Id'));
+                //this.list();
             })
             .catch(e => {
                 this.error = e;

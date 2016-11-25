@@ -25,8 +25,20 @@ export class Service extends RestService {
     }
 
     create(data) {
-        var endpoint = `${serviceUri}`;
-        return super.post(endpoint, data);
+        var endpoint = `${serviceUri}`; 
+        var header = '';
+        var request = {
+            method: 'POST',
+            headers: new Headers(Object.assign({}, this.header, header)),
+            body: JSON.stringify(data)
+        };
+        var postRequest = this.http.fetch(endpoint, request);
+        this.publish(postRequest);
+        return postRequest
+            .then(response => {
+                return response;
+            }) 
+        //return super.post(endpoint, data);
     } 
     
     getBank() {
