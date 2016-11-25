@@ -37,8 +37,7 @@ export class Create {
                 i++;
         }
         this.service.create(this.data)
-            .then(response => {
-                console.log(response);
+            .then(response => { 
                 this.detail(response.headers.get('Id'));
                 //this.list();
             })
