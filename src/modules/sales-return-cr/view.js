@@ -15,7 +15,8 @@ export class View {
         var id = params.id;
         this.service.getById(id)
         .then(data=>{
-            this.data = data;
+            this.data = data; 
+            this.data.dateString = this.getStringDate(new Date(this.data.date));
             for(var item of this.data.salesDocReturn.items) {
                 item.returnStatus = "Barang Baru";
                 if(item.isReturn)
@@ -25,8 +26,8 @@ export class View {
             this.checkPaymentType();
             this.generatePrintStruk();
         })
-    }
-
+    } 
+    
     list()
     {
         this.router.navigateToRoute('list');
@@ -120,7 +121,7 @@ export class View {
         this.printStruk += "</div>";
         this.printStruk += "<div class='row'>";
         this.printStruk += "    <div class='col-xs-3'> Tanggal </div>"; 
-        this.printStruk += "    <div class='col-xs-9'> " + this.getStringDate(this.data.date) + " " + this.getStringTime(this.data.date) + " </div>"; 
+        this.printStruk += "    <div class='col-xs-9'> " + this.data.dateString + " </div>"; 
         this.printStruk += "</div>"; 
         this.printStruk += "<div class='row'>";
         this.printStruk += "    <div class='col-xs-12'> Retur ================================================ </div>";
