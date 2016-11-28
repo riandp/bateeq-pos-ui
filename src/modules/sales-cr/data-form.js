@@ -126,30 +126,35 @@ export class DataForm {
             .then(salesVoidsResult => {
                 var salesVoids = salesVoidsResult[0]
                 if (salesVoids) {
-                    this.data.store = salesVoids.store;
-                    this.data.storeId = salesVoids.storeId;
-                    this.data.datePicker = this.getStringDate(new Date(salesVoids.date));
-                    this.data.date = new Date(salesVoids.date);
-                    this.data.reference = salesVoids.code;
-                    this.data.remark = salesVoids.remark;
-                    for(var salesVoidsItem of salesVoids.items) {
-                        var item = {};
-                        item.itemCode = salesVoidsItem.item.code;
-                        item.itemId = salesVoidsItem.itemId;
-                        item.item = salesVoidsItem.item;
-                        item.quantity = salesVoidsItem.quantity;
-                        item.price = parseInt(salesVoidsItem.price);
-                        item.discount1 = parseInt(salesVoidsItem.discount1);
-                        item.discount2 = parseInt(salesVoidsItem.discount2);
-                        item.discountNominal = parseInt(salesVoidsItem.discountNominal);
-                        item.specialDiscount = salesVoidsItem.specialDiscount + "";
-                        item.margin = parseInt(salesVoidsItem.margin);
-                        this.data.items.push(item);
-                        this.sumRow(item);
+                    if (salesVoids.isVoid == true) {
+                        this.data.store = salesVoids.store;
+                        this.data.storeId = salesVoids.storeId;
+                        this.data.datePicker = this.getStringDate(new Date(salesVoids.date));
+                        this.data.date = new Date(salesVoids.date);
+                        this.data.reference = salesVoids.code;
+                        this.data.remark = salesVoids.remark;
+                        for (var salesVoidsItem of salesVoids.items) {
+                            var item = {};
+                            item.itemCode = salesVoidsItem.item.code;
+                            item.itemId = salesVoidsItem.itemId;
+                            item.item = salesVoidsItem.item;
+                            item.quantity = salesVoidsItem.quantity;
+                            item.price = parseInt(salesVoidsItem.price);
+                            item.discount1 = parseInt(salesVoidsItem.discount1);
+                            item.discount2 = parseInt(salesVoidsItem.discount2);
+                            item.discountNominal = parseInt(salesVoidsItem.discountNominal);
+                            item.specialDiscount = salesVoidsItem.specialDiscount + "";
+                            item.margin = parseInt(salesVoidsItem.margin);
+                            this.data.items.push(item);
+                            this.sumRow(item);
+                        }
                     }
-                } 
+                    else {
+                        alert("Transaksi harus di void dahulu");
+                    }
+                }
                 else
-                    alert('Referensi Keluar tidak ditemukan');
+                    alert('Referensi Void tidak ditemukan');
             })
             .catch(e => {
                 console.log(e);
