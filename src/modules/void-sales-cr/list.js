@@ -17,6 +17,9 @@ export class List {
             .then(data => {
                 
                 this.data = data;
+                for(var i of this.data) {
+                    i._updatedDate = this.getStringDate(new Date(i._updatedDate));
+                }
             })
     }
 
@@ -26,5 +29,19 @@ export class List {
     
     create() {
         this.router.navigateToRoute('create');
+    }
+
+    getStringDate(date) { 
+        var dd = date.getDate();
+        var mm = date.getMonth()+1; //January is 0! 
+        var yyyy = date.getFullYear();
+        if(dd<10){
+            dd='0'+dd
+        } 
+        if(mm<10){
+            mm='0'+mm
+        } 
+        date = yyyy+'-'+mm+'-'+dd;
+        return date; 
     }
 }

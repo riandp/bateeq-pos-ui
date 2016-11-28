@@ -21,13 +21,7 @@ export class Service extends RestService {
         var endpoint = `${serviceUri}`;
         return super.get(endpoint);
     }
-
-    getAllSalesAllShift(storeName, dateFrom, dateTo, shift, typeAllStore, typeAllShift, typeAllStoreAllShift)
-  {
-    var endpoint = `${serviceUri}/${storeName}/${dateFrom}/${dateTo}/${shift}/${typeAllStore}/${typeAllShift}/${typeAllStoreAllShift}`;
-    return super.get(endpoint);
-  }
-
+  
     getById(id) {
         var endpoint = `${serviceUri}/${id}`;
         return super.get(endpoint);

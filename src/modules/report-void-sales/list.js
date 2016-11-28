@@ -100,7 +100,7 @@ export class List {
                                 var itemRowSpan = 0;
                                 var itemData = {};
                                 itemData.details = [];
-                                result.tanggal = new Date(data.date);
+                                result.tanggal = new Date(data._updatedDate);
                                 itemData.isVoid = data.isVoid;
                                 itemData.nomorPembayaran = data.code;
                                 itemData.Toko = data.store.name;

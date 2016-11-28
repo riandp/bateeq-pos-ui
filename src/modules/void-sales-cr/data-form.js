@@ -17,7 +17,8 @@ export class DataForm {
         this.service = service;
         this.bindingEngine = bindingEngine; 
         
-        this.salesApiUri = require('../../host').sales + '/docs/salesvoids'+'/'+this.dateFromPicker+'/'+ this.dateToPicker;
+        this.salesApiUri = require('../../host').sales + '/docs/sales';
+        //this.salesApiUri = require('../../host').sales + '/docs/sales'+'/storename=null/'+this.dateFromPicker+'/'+ this.dateToPicker+'/shift=null/typeAllStore=true/typeAllShift=true/typeAllStoreAllShift=true';
         
 
         this.isCard = false;
@@ -63,13 +64,28 @@ export class DataForm {
                                 item.storeName = dataSales.store.name;
                                 item.grandTotal = dataSales.grandTotal;
                                 item._createdBy = dataSales._createdBy;
-                                item.date = dataSales.date;
+                                item.date = this.getStringDate(new Date(dataSales.date));
+                                
 
                             }
                         )
                     });
                 }
             });
+    }
+
+    getStringDate(date) { 
+        var dd = date.getDate();
+        var mm = date.getMonth()+1; //January is 0! 
+        var yyyy = date.getFullYear();
+        if(dd<10){
+            dd='0'+dd
+        } 
+        if(mm<10){
+            mm='0'+mm
+        } 
+        date = yyyy+'-'+mm+'-'+dd;
+        return date; 
     }
 
     setTextbox()
@@ -111,7 +127,10 @@ export class DataForm {
         
         // var datefrom = new Date(this.data.filter.dateFrom);
         // var dateto = new Date(this.data.filter.dateTo);
-        this.salesApiUri = require('../../host').sales + '/docs/salesvoids'+'/'+this.dateFromPicker+'/'+ this.dateToPicker;
+        this.salesApiUri = require('../../host').sales + '/docs/salesvoids?isVoid=false';
+        
+        //this.salesApiUri = require('../../host').sales + '/docs/sales'+'/storename=null/'+this.dateFromPicker+'/'+ this.dateToPicker+'/shift=null/typeAllStore=true/typeAllShift=true/typeAllStoreAllShift=true';
+        alert(this.salesApiUri);
         //getDataTrans.push(this.service.getAllSalesAllStoreAllShift("storename=null", datefrom, dateto, "shift=null", "typeAllStore=true", "typeAllShift=true", "typeAllStoreAllShift=true"));
         //getDataTrans.push(this.service.getTransByStoreName(textDdlStore, true));
         

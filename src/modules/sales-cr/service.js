@@ -3,6 +3,7 @@ import {HttpClient} from 'aurelia-fetch-client';
 import {RestService} from '../../rest-service';
 
 const serviceUri = require('../../host').sales + '/docs/sales';
+const serviceUriSalesVoids = require('../../host').sales + '/docs/salesvoids';
 const serviceUriBank = require('../../host').master + '/banks';
 const serviceUriCardType = require('../../host').master + '/cardtypes';
 const serviceUriPromo = require('../../host').sales + '/promos'; 
@@ -22,6 +23,12 @@ export class Service extends RestService {
     getById(id) {
         var endpoint = `${serviceUri}/${id}`;
         return super.get(endpoint);
+    }
+
+    getSalesVoidsByCode(code)
+    { 
+        var endpoint = `${serviceUriSalesVoids}?code=${code}`;
+        return super.get(endpoint); 
     }
 
     create(data) {
