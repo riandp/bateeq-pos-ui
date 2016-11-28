@@ -16,6 +16,7 @@ export class View {
         this.service.getById(id)
         .then(data=>{
             this.data = data;
+            this.data.dateString = this.getStringDate(new Date(this.data.date));
             this.checkPaymentType();
             this.generatePrintStruk();
         })
@@ -114,7 +115,7 @@ export class View {
         this.printStruk += "</div>";
         this.printStruk += "<div class='row'>";
         this.printStruk += "    <div class='col-xs-3'> Tanggal </div>"; 
-        this.printStruk += "    <div class='col-xs-9'> " + this.getStringDate(this.data.date) + " " + this.getStringTime(this.data.date) + " </div>"; 
+        this.printStruk += "    <div class='col-xs-9'> " + this.data.dateString + " </div>"; 
         this.printStruk += "</div>"; 
         this.printStruk += "<div class='row'>";
         this.printStruk += "    <div class='col-xs-12'> ====================================================== </div>";

@@ -13,6 +13,10 @@ export class List {
     }
 
     activate() {
+        this.getData();
+    }
+    
+    getData() {
         this.service.search(this.filter)
             .then(data => { 
                 this.data = data;
@@ -21,7 +25,7 @@ export class List {
                 }
             })
     }
-
+    
     view(data) {
         this.router.navigateToRoute('view', { id: data._id });
     }
@@ -31,13 +35,7 @@ export class List {
     }
     
     filterData() {
-        this.service.search(this.filter)
-            .then(data => { 
-                this.data = data;
-                for(var i of this.data) {
-                    i.date = this.getStringDate(new Date(i.date));
-                }
-            })
+        this.getData();
     }
     
     getStringDate(date) { 
