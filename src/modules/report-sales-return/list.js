@@ -58,7 +58,7 @@ export class List {
                 var date = new Date(d);
                 var fromString = this.getStringDate(date) + 'T00:00:00';
                 var toString = this.getStringDate(date) + 'T23:59:59';
-                getData.push(this.service.getAllSalesReturnByFilter(this.data.filter.storeId, fromString, toString));
+                getData.push(this.service.getAllSalesReturnByFilter(this.data.filter.storeId, fromString, toString, this.data.filter.shift));
             }
             Promise.all(getData)
                 .then(salesPerDays => {
@@ -93,6 +93,7 @@ export class List {
                             var totalDiscountMarginNettoReturn = 0;
                             var totalTotalReturn = 0;
                             
+                            var totalKelebihanBayar = 0;
                             var totalSubTotal = 0;
                             var totalDiscountSaleNominal = 0;
                             var totalGrandTotal = 0;
@@ -178,14 +179,13 @@ export class List {
                                 itemData.tipePembayaran = data.salesDocReturn.salesDetail.paymentType;
                                 itemData.card = data.salesDocReturn.salesDetail.cardType.name ? data.salesDocReturn.salesDetail.cardType.name : "";
                                 itemData.itemRowSpan = itemRowSpan;
-
-                                totalSubTotal += parseInt(itemData.subTotal);
-                                totalDiscountSaleNominal += parseInt(itemData.discountSaleNominal);
-                                totalGrandTotal += parseInt(itemData.grandTotal);
-                                
                                 itemData.kelebihanBayar = (itemData.kelebihanBayar < 0) ? 0 : itemData.kelebihanBayar;
                                 itemData.grandTotal = (itemData.grandTotal < 0) ? 0 : itemData.grandTotal;
                                 
+                                totalKelebihanBayar += parseInt(itemData.kelebihanBayar);
+                                totalSubTotal += parseInt(itemData.subTotal);
+                                totalDiscountSaleNominal += parseInt(itemData.discountSaleNominal);
+                                totalGrandTotal += parseInt(itemData.grandTotal);
                                 
                                 result.items.push(itemData);
                             }
@@ -204,6 +204,7 @@ export class List {
                             result.totalDiscountMarginNetto = totalDiscountMarginNetto;
                             result.totalTotal = totalTotal;
                             result.totalSubTotal = totalSubTotal;
+                            result.totalKelebihanBayar = totalKelebihanBayar;
                             result.totalDiscountSaleNominal = totalDiscountSaleNominal;
                             result.totalGrandTotal = totalGrandTotal;
                             
@@ -278,11 +279,11 @@ export class List {
         this.reportHTML += "                <th>Margin (Nominal)</th>";
         this.reportHTML += "                <th>Netto (setelah margin)</th>";
         this.reportHTML += "                <th>Total</th>";
-        this.reportHTML += "                <th>Kelebihan Bayar</th>";
         this.reportHTML += "                <th>Subtotal (Barang Baru)</th>";
+        this.reportHTML += "                <th>Kelebihan Bayar</th>";
         // this.reportHTML += "                <th>Disc Penjualan (%)</th>";
         // this.reportHTML += "                <th>Disc Penjualan (Nominal)</th>";
-        this.reportHTML += "                <th>Grand Total</th>";
+        this.reportHTML += "                <th>Omset on Hand</th>";
         this.reportHTML += "                <th>Tipe Pembayaran</th>";
         this.reportHTML += "                <th>Kartu</th>";
         this.reportHTML += "            </tr>";
@@ -321,8 +322,8 @@ export class List {
                     this.reportHTML += "            <td style='background-color:#e28848;'>" + itemDetail.discountMarginNetto.toLocaleString() + "</td>";
                     this.reportHTML += "            <td style='background-color:#92e045;'>" + itemDetail.total.toLocaleString() + "</td>";
                     if (!isItemRowSpan) {
-                        this.reportHTML += "        <td rowspan='" + item.itemRowSpan + "'>" + item.kelebihanBayar.toLocaleString() + "</td>";
                         this.reportHTML += "        <td style='background-color:#e24871;' rowspan='" + item.itemRowSpan + "'>" + item.subTotal.toLocaleString() + "</td>";
+                        this.reportHTML += "        <td rowspan='" + item.itemRowSpan + "'>" + item.kelebihanBayar.toLocaleString() + "</td>";
                         // this.reportHTML += "        <td rowspan='" + item.itemRowSpan + "'>" + item.discountSalePercentage + "%</td>";
                         // this.reportHTML += "        <td rowspan='" + item.itemRowSpan + "'>" + item.discountSaleNominal.toLocaleString() + "</td>";
                         this.reportHTML += "        <td style='background-color:#e0a545;' rowspan='" + item.itemRowSpan + "'>" + item.grandTotal.toLocaleString() + "</td>";
@@ -342,25 +343,38 @@ export class List {
             this.reportHTML += "        <td></td>";
             this.reportHTML += "        <td></td>";
             this.reportHTML += "        <td></td>";
-            this.reportHTML += "        <td>" + data.totalQty.toLocaleString() + "</td>";
-            this.reportHTML += "        <td>" + data.totalOmsetBruto.toLocaleString() + "</td>";
             this.reportHTML += "        <td></td>";
-            this.reportHTML += "        <td>" + data.totalDiscount1Nominal.toLocaleString() + "</td>";
-            this.reportHTML += "        <td>" + data.totalDiscount1Netto.toLocaleString() + "</td>";
             this.reportHTML += "        <td></td>";
-            this.reportHTML += "        <td>" + data.totalDiscount2Nominal.toLocaleString() + "</td>";
-            this.reportHTML += "        <td>" + data.totalDiscount2Netto.toLocaleString() + "</td>";
-            this.reportHTML += "        <td>" + data.totalDiscountNominal.toLocaleString() + "</td>";
-            this.reportHTML += "        <td>" + data.totalDiscountNominalNetto.toLocaleString() + "</td>";
+            //this.reportHTML += "        <td>" + data.totalQty.toLocaleString() + "</td>";
             this.reportHTML += "        <td></td>";
-            this.reportHTML += "        <td>" + data.totalDiscountSpecialNominal.toLocaleString() + "</td>";
-            this.reportHTML += "        <td>" + data.totalDiscountSpecialNetto.toLocaleString() + "</td>";
+            //this.reportHTML += "        <td>" + data.totalOmsetBruto.toLocaleString() + "</td>";
             this.reportHTML += "        <td></td>";
-            this.reportHTML += "        <td>" + data.totalDiscountMarginNominal.toLocaleString() + "</td>";
-            this.reportHTML += "        <td>" + data.totalDiscountMarginNetto.toLocaleString() + "</td>";
-            this.reportHTML += "        <td>" + data.totalTotal.toLocaleString() + "</td>";
             this.reportHTML += "        <td></td>";
+            //this.reportHTML += "        <td>" + data.totalDiscount1Nominal.toLocaleString() + "</td>";
+            this.reportHTML += "        <td></td>";
+            //this.reportHTML += "        <td>" + data.totalDiscount1Netto.toLocaleString() + "</td>";
+            this.reportHTML += "        <td></td>";
+            this.reportHTML += "        <td></td>";
+            //this.reportHTML += "        <td>" + data.totalDiscount2Nominal.toLocaleString() + "</td>";
+            this.reportHTML += "        <td></td>";
+            //this.reportHTML += "        <td>" + data.totalDiscount2Netto.toLocaleString() + "</td>";
+            this.reportHTML += "        <td></td>";
+            //this.reportHTML += "        <td>" + data.totalDiscountNominal.toLocaleString() + "</td>";
+            this.reportHTML += "        <td></td>";
+            //this.reportHTML += "        <td>" + data.totalDiscountNominalNetto.toLocaleString() + "</td>";
+            this.reportHTML += "        <td></td>";
+            this.reportHTML += "        <td></td>";
+            // this.reportHTML += "        <td>" + data.totalDiscountSpecialNominal.toLocaleString() + "</td>";
+            this.reportHTML += "        <td></td>";
+            // this.reportHTML += "        <td>" + data.totalDiscountSpecialNetto.toLocaleString() + "</td>";
+            this.reportHTML += "        <td></td>";
+            this.reportHTML += "        <td></td>";
+            // this.reportHTML += "        <td>" + data.totalDiscountMarginNominal.toLocaleString() + "</td>";
+            this.reportHTML += "        <td></td>";
+            // this.reportHTML += "        <td>" + data.totalDiscountMarginNetto.toLocaleString() + "</td>";
+            // this.reportHTML += "        <td>" + data.totalTotal.toLocaleString() + "</td>";
             this.reportHTML += "        <td>" + data.totalSubTotal.toLocaleString() + "</td>";
+            this.reportHTML += "        <td>" + data.totalKelebihanBayar.toLocaleString() + "</td>";
             // this.reportHTML += "        <td></td>";
             // this.reportHTML += "        <td>" + data.totalDiscountSaleNominal.toLocaleString() + "</td>";
             this.reportHTML += "        <td>" + data.totalGrandTotal.toLocaleString() + "</td>";

@@ -9,7 +9,7 @@
             </div>
         </div>
         -->
-        <store-auto-suggest label="Toko" value.bind="data.store" error.bind="error.store" read-only.bind="readOnly" change.delegate="storeChanged($event)"></store-auto-suggest>
+        <store-auto-suggest label="Toko" value.bind="data.store" error.bind="error.storeId" read-only.bind="readOnly" change.delegate="storeChanged($event)"></store-auto-suggest>
         
         <div class="form-group ${error.shift?'has-error':''}">
             <label for="shift" class="col-sm-2 control-label">Shift</label>

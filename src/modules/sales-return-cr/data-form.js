@@ -6,11 +6,8 @@ import {Service} from './service';
 export class DataForm {
     @bindable data = {};
     @bindable error = {};
-        
-    //storeApiUri = require('../host').master + '/stores';
-    finishedGoodsApiUri = require('../../host').master + '/finishedgoods';
+         
     salesApiUri = require('../../host').sales + '/docs/sales';
-    voucherApiUri = '';
     
     constructor(router, service, bindingEngine) { 
         this.router = router;
@@ -182,6 +179,14 @@ export class DataForm {
         if (store)
             this.data.storeId = store._id;
     } 
+    
+    salesChanged(e) {
+        var sales = e.detail;
+        if (sales) {
+            this.data.reference = sales._id;
+            this.data.salesId = sales._id;
+        }
+    }
     
     addItem() {           
         var item = {};

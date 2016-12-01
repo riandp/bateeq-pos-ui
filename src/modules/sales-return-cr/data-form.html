@@ -12,13 +12,15 @@
             </div>
         </div>
         
-        <div class="form-group ${error.reference?'has-error':''}">
+        <sales-auto-suggest label="Nomor Transaksi" value.bind="data.sales" error.bind="error.reference" read-only.bind="readOnly" change.delegate="salesChanged($event)"></sales-auto-suggest>
+        
+        <!--<div class="form-group ${error.reference?'has-error':''}">
             <label for="reference" class="col-sm-2 control-label">Nomor Transaksi</label>
             <div class="col-sm-10"> 
                 <horsey src.bind="salesApiUri" selection.bind="data.sales" value.bind="data.reference" options.bind="{value:'_id', label:'code'}"></horsey>
                 <span class="help-block">${error.reference}</span>
             </div>
-        </div> 
+        </div> -->
         
         <!--<textbox label="Toko Asal" value.bind="data.sales.store.name" read-only.bind="readOnly"></textbox>-->
         <div class="form-group">
@@ -73,7 +75,6 @@
                                     <td>${$index+1}</td>
                                     <td>
                                         <div class="form-group ${error.items[$index].itemId?'has-error':''}">
-                                            <!--<horsey src.bind="finishedGoodsApiUri" selection.bind="item.item" value.bind="item.itemId" options.bind="{value:'_id', label:'name'}" change.delegate="sumRow(item)"></horsey>-->
                                             <select class="form-control" name="item" value.bind="item.itemId">
                                                 <option value=""></option>
                                                 <option repeat.for="itemRetur of itemReturs" value="${itemRetur.itemId}">${itemRetur.item.name}</option>
@@ -168,7 +169,6 @@
                                                     </td>
                                                     <td>
                                                         <div class="form-group ${error.items[$parent.$index].returnItems[$index].itemId?'has-error':''}">
-                                                            <!--<horsey src.bind="finishedGoodsApiUri" selection.bind="returnItem.item" value.bind="returnItem.itemId" options.bind="{value:'_id', label:'name'}" change.delegate="sumRow(returnItem)"></horsey>-->
                                                             <input type="text" class="form-control" name="itemName" value.bind="returnItem.item.name" readonly/>
                                                             <span class="help-block">${error.items[$parent.$index].returnItems[$index].itemId}</span>
                                                         </div>

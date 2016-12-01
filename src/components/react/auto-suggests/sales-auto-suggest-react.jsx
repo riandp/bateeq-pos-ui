@@ -1,6 +1,6 @@
 import React from 'react';
 import AutoSuggestReact from './auto-suggest-react.jsx';
-// import {Session} from '../../../utils/session';
+import {Session} from '../../../utils/session';
 
 const serviceUri = require('../../../host').sales + '/docs/sales';
 const empty = {
@@ -69,9 +69,9 @@ SalesAutoSuggestReact.defaultProps = {
         function (text) {
             var uri = serviceUri + '?keyword=' + text;
             
-            // var session = new Session();
+            var session = new Session();
             var requestHeader = new Headers();
-            // requestHeader.append('Authorization', `JWT ${session.token}`);
+            requestHeader.append('Authorization', `JWT ${session.token}`);
 
             return fetch(uri, { headers: requestHeader }).then(results => results.json()).then(json => {
                 return json.data.map(sales => {

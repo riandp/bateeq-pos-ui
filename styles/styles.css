@@ -318,8 +318,9 @@ div.au-stagger {
   
   .struk {
     width: 75mm; 
+    height: 100mm;
     overflow: hidden;
-    font-size:8pt;
+    font-size:9pt;
   }
   
   .a4 {
