@@ -237,4 +237,170 @@ export class View {
         this.printStruk += "</div>";   
           
     }
+     
+    generatePrintStrukTable() { 
+        var discountSubTotal = parseInt(this.data.subTotal) * (parseInt(this.data.discount) / 100);
+        var exchange = (parseInt(this.data.salesDetail.cardAmount) + parseInt(this.data.salesDetail.cashAmount) + parseInt(this.data.salesDetail.voucher.value)) - parseInt(this.data.grandTotal);
+        var hemat = 0;
+        hemat += discountSubTotal;
+        
+        this.printStruk = ""; 
+        this.printStruk += "<table>";
+        // this.printStruk += "    <tr>";
+        // this.printStruk += "        <td colspan='3'> this.data.salesDetail.paymentType </td>";
+        // this.printStruk += "    </tr>";
+        this.printStruk += "    <tr>";
+        this.printStruk += "        <td colspan='3'> " + this.data.store.name + " </td>";
+        this.printStruk += "    </tr>";
+        this.printStruk += "    <tr>";
+        this.printStruk += "        <td colspan='3'> " + this.data.store.address + " </td>";
+        this.printStruk += "    </tr>";
+        this.printStruk += "    <tr>";
+        this.printStruk += "        <td colspan='3'> " + this.data.store.phone + " </td>";
+        this.printStruk += "    </tr>";
+        this.printStruk += "    <tr>";
+        this.printStruk += "        <td colspan='3'> No. NPWP: 31.579.110.3-532.000 </td>";
+        this.printStruk += "    </tr>";
+        this.printStruk += "    <tr>";
+        this.printStruk += "        <td colspan='3'> ====================================================== </td>";
+        this.printStruk += "    </tr>";
+        this.printStruk += "    <tr>";
+        this.printStruk += "        <td colspan='3'>";
+        this.printStruk += "            <div class='col-xs-3'> Kasir </div>"; 
+        this.printStruk += "            <div class='col-xs-9'> " + this.data.store.code + "/" + this.data._createdBy + " </div>"; 
+        this.printStruk += "        </td>";
+        this.printStruk += "    </tr>";
+        this.printStruk += "    <tr>";
+        this.printStruk += "        <td colspan='3'>";
+        this.printStruk += "            <div class='col-xs-3'> Nomor </div>"; 
+        this.printStruk += "            <div class='col-xs-9'> " + this.data.code + " </div>";  
+        this.printStruk += "        </td>";
+        this.printStruk += "    </tr>";
+        this.printStruk += "    <tr>";
+        this.printStruk += "        <td colspan='3'>";
+        this.printStruk += "            <div class='col-xs-3'> Tanggal </div>"; 
+        this.printStruk += "            <div class='col-xs-9'> " + this.data.dateString + " </div>";  
+        this.printStruk += "        </td>";
+        this.printStruk += "    </tr>";
+        this.printStruk += "    <tr>";
+        this.printStruk += "        <td colspan='3'> ====================================================== </td>";
+        this.printStruk += "    </tr>";
+        // this.printStruk += "</table>";
+         
+        for(var item of this.data.items) {
+            var totalPrice = item.quantity * item.price;
+            var discount1Nominal = totalPrice * (item.discount1 / 100);
+            var discount2Nominal = (totalPrice - discount1Nominal) * (item.discount2 / 100);
+            var totalDiscount12 = discount1Nominal + discount2Nominal;
+            var discountSpecialNominal = ((totalPrice - totalDiscount12) - item.discountNominal) * (item.specialDiscount / 100)
+            hemat += discount1Nominal + discount2Nominal + item.discountNominal + discountSpecialNominal;
+            
+            this.printStruk += "    <tr>";
+            this.printStruk += "        <td> " + item.item.code + " </td>";
+            this.printStruk += "        <td colspan='2'> " + item.item.name + " </td>";
+            this.printStruk += "    </tr>";
+            this.printStruk += "    <tr>";
+            this.printStruk += "        <td> " + item.quantity.toLocaleString() + " </td>";
+            this.printStruk += "        <td> " + item.price.toLocaleString() + " </td>";
+            this.printStruk += "        <td> " + item.total.toLocaleString() + " </td>";
+            this.printStruk += "    </tr>";
+             
+            if(item.discount1 > 0 || item.discount2 > 0) {
+                
+                this.printStruk += "    <tr>";
+                this.printStruk += "        <td colspan='3'> Disc. Item";
+                 
+                if(item.discount1 > 0) {
+                    this.printStruk += item.discount1 + "%"; 
+                }
+                if(item.discount2 > 0) {
+                    this.printStruk += " + " + item.discount2 + "%"; 
+                }
+                this.printStruk += "        : " + totalDiscount12.toLocaleString() + "</td>";
+                this.printStruk += "    </tr>";
+            } 
+            if(item.discountNominal > 0) {
+                this.printStruk += "    <tr>";
+                this.printStruk += "        <td colspan='3'> Disc. Nominal " + item.discountNominal.toLocaleString() + " </td>";
+                this.printStruk += "    </tr>";
+            }
+            if(item.specialDiscount > 0) {
+                this.printStruk += "    <tr>";
+                this.printStruk += "        <td colspan='3'> Special Disc. " + item.specialDiscount + "% : " + discountSpecialNominal.toLocaleString() + " </td>";
+                this.printStruk += "    </tr>";
+            }
+            // this.printStruk += "    <tr>";
+            // this.printStruk += "        <td colspan='3'> </td>";
+            // this.printStruk += "    </tr>";
+        } 
+        this.printStruk += "    <tr>";
+        this.printStruk += "        <td colspan='3'> ====================================================== </td>";
+        this.printStruk += "    </tr>";
+        this.printStruk += "    <tr>";
+        this.printStruk += "        <td> Total Item : </td>";
+        this.printStruk += "        <td> Subtotal : </td>";
+        this.printStruk += "        <td> " + this.data.subTotal.toLocaleString() + " </td>";
+        this.printStruk += "    </tr>";
+        this.printStruk += "    <tr>";
+        this.printStruk += "        <td> " + this.data.totalProduct.toLocaleString() + " </td>";
+        this.printStruk += "        <td> Disc : </td>";
+        this.printStruk += "        <td> " + discountSubTotal.toLocaleString() + " </td>";
+        this.printStruk += "    </tr>";
+        this.printStruk += "    <tr>";
+        this.printStruk += "        <td colspan='2'> Grand Total : </td>";
+        this.printStruk += "        <td> " + this.data.grandTotal.toLocaleString() + " </td>";
+        this.printStruk += "    </tr>";
+         
+        if(this.isCash) {
+            this.printStruk += "    <tr>";
+            this.printStruk += "        <td colspan='2'> Tunai : </td>";
+            this.printStruk += "        <td> " + this.data.salesDetail.cashAmount.toLocaleString() + " </td>";
+            this.printStruk += "    </tr>";
+        }
+        if(this.isCard) { 
+            this.printStruk += "    <tr>";
+            this.printStruk += "        <td colspan='2'> " + this.data.salesDetail.card + " Card : </td>";
+            this.printStruk += "        <td> " + this.data.salesDetail.cardAmount.toLocaleString() + " </td>";
+            this.printStruk += "    </tr>";
+        }
+        if(this.data.salesDetail.voucher.value > 0) {
+            this.printStruk += "    <tr>";
+            this.printStruk += "        <td colspan='2'> Voucher : </td>";
+            this.printStruk += "        <td> " + this.data.salesDetail.voucher.value.toLocaleString() + " </td>";
+            this.printStruk += "    </tr>";
+        }
+        if(this.isCash) {
+            this.printStruk += "    <tr>";
+            this.printStruk += "        <td colspan='2'> Kembali : </td>";
+            this.printStruk += "        <td> " + exchange.toLocaleString() + " </td>";
+            this.printStruk += "    </tr>";
+        }
+        if(this.isCard) {
+            this.printStruk += "    <tr>";
+            this.printStruk += "        <td colspan='3'> Bank: " + this.data.salesDetail.bank.name + " - " + this.data.salesDetail.cardNumber + " </td>";
+            this.printStruk += "    </tr>";
+        }
+        this.printStruk += "    <tr>";
+        this.printStruk += "        <td colspan='3'> Hemat: " + hemat.toLocaleString() + " </td>";
+        this.printStruk += "    </tr>";
+        this.printStruk += "    <tr>";
+        this.printStruk += "        <td colspan='3'> ====================================================== </td>";
+        this.printStruk += "    </tr>"; 
+        this.printStruk += "    <tr>";
+        this.printStruk += "        <td colspan='3'> <center>Harga sudah termasuk PPN dan tas belanja</center> </td>";
+        this.printStruk += "    </tr>";
+        this.printStruk += "    <tr>";
+        this.printStruk += "        <td colspan='3'> <center>BARANG CACAT KARENA PRODUSEN DAPAT DITUKAR DALAM 7 HARI</center> </td>";
+        this.printStruk += "    </tr>";
+        this.printStruk += "    <tr>";
+        this.printStruk += "        <td colspan='3'> <center>SETELAH TRANSAKSI</center> </td>";
+        this.printStruk += "    </tr>"; 
+        this.printStruk += "    <tr>";
+        this.printStruk += "        <td colspan='3'> ====================================================== </td>";
+        this.printStruk += "    </tr>";
+        this.printStruk += "    <tr>";
+        this.printStruk += "        <td colspan='3'> <center>TERIMA KASIH ATAS KUNJUNGAN ANDA</center> </td>";
+        this.printStruk += "    </tr>";   
+          
+    }
 }

@@ -1,24 +1,26 @@
 import {inject, bindable, BindingEngine} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
 import {Service} from './service';
+import {Session} from '../../utils/session';
 
-@inject(Router, Service, BindingEngine)
+@inject(Router, Service, BindingEngine, Session)
 export class DataForm {
     @bindable data = {};
     @bindable error = {};
 
-    //storeApiUri = require('../host').master + '/stores';
     finishedGoodsApiUri = require('../../host').master + '/finishedgoods';
     voucherApiUri = '';
 
-    constructor(router, service, bindingEngine) {
+    constructor(router, service, bindingEngine, session) {
         this.router = router;
         this.service = service;
         this.bindingEngine = bindingEngine;
-
+        this.session = session; 
+        
+        this.stores = session.stores; 
+        
         this.isCard = false;
         this.isCash = false;
-        this.data.storeId = "";
         var getData = [];
         getData.push(this.service.getBank());
         getData.push(this.service.getCardType());
@@ -75,10 +77,12 @@ export class DataForm {
     }
 
     attached() {
-        this.data.storeId = '';
+        this.data.storeId = this.stores[0]._id;
+        this.data.store = this.stores[0];
+        this.getShift();
+        
         this.data.datePicker = this.getStringDate(new Date());
         this.data.date = new Date();
-        this.data.shift = 0;
         this.data.discount = 0;
         this.data.totalProduct = 0;
         this.data.subTotal = 0;
@@ -104,22 +108,31 @@ export class DataForm {
                 }
             });
         this.bindingEngine.propertyObserver(this.data, "storeId").subscribe((newValue, oldValue) => {
-            var today = new Date();
-            for (var shift of this.data.store.shifts) {
-                var dateFrom = new Date(this.getUTCStringDate(today) + "T" + this.getUTCStringTime(new Date(shift.dateFrom)));
-                var dateTo = new Date(this.getUTCStringDate(today) + "T" + this.getUTCStringTime(new Date(shift.dateTo)));
-                if (dateFrom < today && today < dateTo) {
-                    this.data.shift = shift.shift;
+            for(var store of this.stores) {
+                if(store._id.toString() === this.data.storeId.toString()) {
+                    this.data.store = store;
+                    break;
                 }
-            }
+            } 
+            this.getShift();
             this.refreshPromo(-1);
         });
         this.bindingEngine.propertyObserver(this.data, "date").subscribe((newValue, oldValue) => {
             this.refreshPromo(-1);
-        });
-
+        }); 
     }
 
+    getShift(){
+        var today = new Date(); 
+        for (var shift of this.data.store.shifts) {
+            var dateFrom = new Date(this.getUTCStringDate(today) + "T" + this.getUTCStringTime(new Date(shift.dateFrom)));
+            var dateTo = new Date(this.getUTCStringDate(today) + "T" + this.getUTCStringTime(new Date(shift.dateTo)));
+            if (dateFrom < today && today < dateTo) {
+                this.data.shift = shift.shift;
+            }
+        }
+    }
+    
     search() {
         var reference = this.data.reference
         this.service.getSalesVoidsByCode(this.data.reference)

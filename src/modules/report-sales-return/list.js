@@ -1,17 +1,20 @@
 import { inject, Lazy, BindingEngine } from 'aurelia-framework';
 import { Router } from 'aurelia-router';
 import { Service } from './service';
+import {Session} from '../../utils/session';
 
 
-@inject(Router, Service, BindingEngine)
+@inject(Router, Service, BindingEngine, Session)
 export class List {
 
-    storeApiUri = require('../../host').master + '/stores';
+    //storeApiUri = require('../../host').master + '/stores';
 
-    constructor(router, service, bindingEngine) {
+    constructor(router, service, bindingEngine, session) {
         this.router = router;
         this.service = service;
         this.bindingEngine = bindingEngine;
+        this.session = session;
+        this.stores = session.stores;
 
         this.data = { filter: {}, results: [] };
         this.error = { filter: {}, results: [] };
@@ -35,12 +38,37 @@ export class List {
     }
 
     attached() {
+        this.shifts = [];
+        this.data.filter.storeId = this.stores[0]._id;
+        this.data.filter.store = this.stores[0];
+        this.getTargetPerMonth();
+        this.getShift();
+                    
         this.bindingEngine.propertyObserver(this.data.filter, "storeId").subscribe((newValue, oldValue) => {
-            this.targetPerMonth = 0;
+            for(var store of this.stores) {
+                if(store._id.toString() === this.data.filter.storeId.toString()) {
+                    this.data.filter.store = store;
+                    break;
+                }
+            } 
+            this.getTargetPerMonth();
+            this.getShift();
+        });
+    }
+    
+    getTargetPerMonth() {
+        this.targetPerMonth = 0;
             if (this.data.filter.store)
                 if (this.data.filter.store.salesTarget)
                     this.targetPerMonth = this.data.filter.store.salesTarget;
-        });
+    }
+    
+    getShift() {
+        this.shifts = []; 
+        for (var shift of this.data.filter.store.shifts) {
+            this.shifts.push(shift.shift);
+        }
+        this.data.filter.shift = this.shifts[0];
     }
 
     filter() {

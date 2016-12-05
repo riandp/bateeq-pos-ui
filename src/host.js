@@ -8,6 +8,7 @@ module.exports = {
     sales: "http://bateeq-pos-api-dev.mybluemix.net/v1/sales"
    
     //Local
+    // , auth: "http://localhost:9050",
     // inventory: "http://localhost:9070/v1/inventory",
     // merchandiser:"http://localhost:9070/v1/merchandiser",
     // master: "http://localhost:9080/v1/master",
