@@ -1,17 +1,15 @@
 <template>
     <require from="customs/elements/horsey"></require>
     <form class="form-horizontal">
-        
-       <!-- <div class="form-group ${error.filter.storeId?'has-error':''}">
+        <div class="form-group ${error.filter.storeId?'has-error':''}">
             <label for="store" class="col-sm-2 control-label">Toko</label>
             <div class="col-sm-10">
                     <select class="form-control" name="store" change.delegate="setCombobox()" id="ddlStore"> 
-                        <option value="semua">Semua</option>
                         <option repeat.for="store of Stores" value="${store._id}">${store.name}</option>
                     </select>
                     <span class="help-block">${error.salesDetail.cardTypeId}</span>
                 </div>
-        </div> -->
+        </div>
         
         
     </form>

@@ -17,10 +17,11 @@ export class DataForm {
         this.service = service;
         this.bindingEngine = bindingEngine; 
         
-        this.salesApiUri = require('../../host').sales + '/docs/sales';
+        //this.salesApiUri = require('../../host').sales + '/docs/sales/false/both';
         //this.salesApiUri = require('../../host').sales + '/docs/sales'+'/storename=null/'+this.dateFromPicker+'/'+ this.dateToPicker+'/shift=null/typeAllStore=true/typeAllShift=true/typeAllStoreAllShift=true';
         
 
+        this.salesApiUri = require('../../host').sales + '/docs/sales/isVoid=false/'+"Store 01";
         this.isCard = false;
         this.isCash = false;
         this.data.storeId = "";
@@ -109,9 +110,8 @@ export class DataForm {
     setCombobox()
     {
        //this.salesApiUri = this.storeApiUri;
-        // var ddlStore = document.getElementById("ddlStore");
-        // var textDdlStore = ddlStore.options[ddlStore.selectedIndex].text;
-        // alert(textDdlStore);
+        var ddlStore = document.getElementById("ddlStore");
+        var textDdlStore = ddlStore.options[ddlStore.selectedIndex].text;
         // if(textDdlStore=="Semua")
         // {
                
@@ -127,10 +127,9 @@ export class DataForm {
         
         // var datefrom = new Date(this.data.filter.dateFrom);
         // var dateto = new Date(this.data.filter.dateTo);
-        this.salesApiUri = require('../../host').sales + '/docs/salesvoids?isVoid=false';
+        this.salesApiUri = require('../../host').sales + '/docs/sales/isVoid=false/'+textDdlStore;
         
         //this.salesApiUri = require('../../host').sales + '/docs/sales'+'/storename=null/'+this.dateFromPicker+'/'+ this.dateToPicker+'/shift=null/typeAllStore=true/typeAllShift=true/typeAllStoreAllShift=true';
-        alert(this.salesApiUri);
         //getDataTrans.push(this.service.getAllSalesAllStoreAllShift("storename=null", datefrom, dateto, "shift=null", "typeAllStore=true", "typeAllShift=true", "typeAllStoreAllShift=true"));
         //getDataTrans.push(this.service.getTransByStoreName(textDdlStore, true));
         

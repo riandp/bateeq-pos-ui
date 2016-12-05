@@ -113,6 +113,7 @@ export class List {
                                     itemData.debitNominal = 0;
                                     itemData.creditNominal = parseInt(data.salesDetail.cardAmount);
                                 }
+                                itemData.cardTypeName = data.salesDetail.card;
 
                                 if (data.salesDetail.bank.name != null) {
                                     itemData.bank = data.salesDetail.bank.name;
@@ -120,11 +121,13 @@ export class List {
                                 }
                                 else
                                     itemData.bank = "Cash";
+
                                 if (data.salesDetail.cardType.name == "Mastercard") {
                                     itemData.debitNominalLainnya = 0;
                                     itemData.creditMasterNominal = parseInt(data.salesDetail.cardAmount);
                                     itemData.creditVisaNominal = 0;
                                     itemData.creditNominalLainnya = 0;
+                                    itemData.cardTypeName = data.salesDetail.cardType.name;
 
                                 }
                                 else if (data.salesDetail.cardType.name == "Visa") {
@@ -132,6 +135,7 @@ export class List {
                                     itemData.creditMasterNominal = 0;
                                     itemData.creditVisaNominal = parseInt(data.salesDetail.cardAmount);
                                     itemData.creditNominalLainnya = 0;
+                                    itemData.cardTypeName = data.salesDetail.cardType.name;
 
                                 }
                                 else if (data.salesDetail.cardType.name != "Visa" && data.salesDetail.cardType.name != "Mastercard") {
@@ -210,7 +214,7 @@ export class List {
         this.totalTempCreditMaster = 0;
 
         this.totalCash = 0;
-        console.log(JSON.stringify(this.data.results));
+        //console.log(JSON.stringify(this.data.results));
         var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
         this.reportHTML = "Payment Summary";
@@ -237,6 +241,7 @@ export class List {
             var tempDebit = 0;
             var tempCredit = 0;
             var tempVoucher = 0;
+            totalTransaksi = 0;
             for (var item of data.items) {
                 if (!item.isVoid) {
                     totalTransaksi++;
@@ -260,20 +265,20 @@ export class List {
 
 
                     if (!isTanggalRowSpan)
-                        this.reportHTML += "            <td rowspan='" + data.tanggalRowSpan + "'>" + tempCash + "</td>";
+                        this.reportHTML += "            <td rowspan='" + data.tanggalRowSpan + "'>" + tempCash.toLocaleString() + "</td>";
 
                     if (!isTanggalRowSpan)
-                        this.reportHTML += "            <td rowspan='" + data.tanggalRowSpan + "'>" + tempDebit + "</td>";
+                        this.reportHTML += "            <td rowspan='" + data.tanggalRowSpan + "'>" + tempDebit.toLocaleString() + "</td>";
 
                     if (!isTanggalRowSpan)
-                        this.reportHTML += "            <td rowspan='" + data.tanggalRowSpan + "'>" + tempCredit + "</td>";
+                        this.reportHTML += "            <td rowspan='" + data.tanggalRowSpan + "'>" + tempCredit.toLocaleString() + "</td>";
 
 
                     if (!isTanggalRowSpan)
-                        this.reportHTML += "            <td rowspan='" + data.tanggalRowSpan + "'>" + tempVoucher + "</td>";
+                        this.reportHTML += "            <td rowspan='" + data.tanggalRowSpan + "'>" + tempVoucher.toLocaleString() + "</td>";
                     var totalOmset = tempCash + tempCredit + tempDebit + tempVoucher;
                     if (!isTanggalRowSpan)
-                        this.reportHTML += "            <td rowspan='" + data.tanggalRowSpan + "'>" + totalOmset + "</td>";
+                        this.reportHTML += "            <td rowspan='" + data.tanggalRowSpan + "'>" + totalOmset.toLocaleString() + "</td>";
                     this.reportHTML += "        </tr>";
                     isTanggalRowSpan = true;
                 }
@@ -310,9 +315,11 @@ export class List {
         this.reportHTML += "        <td style='background-color:#48cbe2;'>" + totalCredit.toLocaleString() + "</td>";
         this.reportHTML += "        <td style='background-color:#48cbe2;'>" + totalVoucher.toLocaleString() + "</td>";
         this.reportHTML += "        <td style='background-color:#48cbe2;'>" + totalTotalOmset.toLocaleString() + "</td>";
-
         this.reportHTML += "        </tbody>";
         this.reportHTML += "    </table>";
+
+
+
 
         this.reportHTMLDetail = "Payment Details - Card";
         this.reportHTMLDetail += "    <table class='table table-fixed'>";
@@ -321,7 +328,7 @@ export class List {
         this.reportHTMLDetail += "            <tr style='background-color:#282828; color:#ffffff;'>";
         this.reportHTMLDetail += "                <th>Tanggal</th>";
         this.reportHTMLDetail += "                <th>Bank (EDC)</th>";
-        this.reportHTMLDetail += "                <th>Bank (Kartu)</th>";
+        this.reportHTMLDetail += "                <th>Bank (Card)</th>";
         this.reportHTMLDetail += "                <th>Debit Card (nominal)</th>";
         this.reportHTMLDetail += "                <th>Credit Card (nominal)</th>";
         this.reportHTMLDetail += "                <th>Credit Visa (nominal)</th>";
@@ -330,129 +337,492 @@ export class List {
         this.reportHTMLDetail += "        </thead>";
         this.reportHTMLDetail += "        <tbody>";
 
-
-        var i = 0;
-        var k = 0;
-        var tempBank = [];
-        var tempBankCard = [];
+        var jsonResults = [];
         for (var data of this.data.results) {
             for (var item of data.items) {
-                tempBank[k] = item.bank;
-                tempBankCard[k] = item.bankCard;
-                k++;
+                var jsonResult = {};
+                jsonResult.cardAmountDebit = 0;
+                jsonResult.cardAmountCredit = 0;
+                jsonResult.cardAmountVisa = 0;
+                jsonResult.cardAmountMaster = 0;
+                // kalau belum ada data
+                if (jsonResults.length == 0) {
+                    if (item.bank != "Cash") {
+                        jsonResult.tanggal = data.tanggal.getDate() + " " + months[data.tanggal.getMonth()] + " " + data.tanggal.getFullYear();
+                        if (item.bank == "")
+                            jsonResult.bank = "Tidak Teridentifikasi";
+                        else
+                            jsonResult.bank = item.bank;
+                        if (item.bankCard == "")
+                            jsonResult.bankCard = "Tidak Teridentifikasi";
+                        else
+                            jsonResult.bankCard = item.bankCard;
+                        jsonResult.cardTypeName = item.cardTypeName;
+                        if (item.cardTypeName == "Debit") {
+                            jsonResult.cardAmountDebit = item.debitNominal;
+                        }
+                        else {
+                            if (item.cardTypeName == "Credit")
+                                jsonResult.cardAmountCredit = item.creditNominal;
+                            if (item.cardTypeName == "Visa")
+                                jsonResult.cardAmountVisa = item.creditVisaNominal;
+                            else if (item.cardTypeName == "Mastercard")
+                                jsonResult.cardAmountMaster = item.creditMasterNominal;
+                        }
+                        jsonResults.push(jsonResult);
+                    }
+                }
+                else {
+                    var isHave = false;
+                    // cek apakah data ada yang sama atau tidak
+                    // jika ada data yang sama, tambahkan dengan yang sudah ada
+                    for (var itemResult of jsonResults) {
+                        var a = data.tanggal.getDate() + " " + months[data.tanggal.getMonth()] + " " + data.tanggal.getFullYear();
+                        var b = itemResult.tanggal;
+                        if (new String(a).valueOf().toLowerCase() == new String(b).valueOf().toLowerCase() && item.cardTypeName == itemResult.cardTypeName && item.bank == itemResult.bank && item.bankCard == itemResult.bankCard && item.bank != "Cash") {
+                            itemResult.tanggal = data.tanggal.getDate() + " " + months[data.tanggal.getMonth()] + " " + data.tanggal.getFullYear();
+                            if (item.bank == "")
+                                itemResult.bank = "Tidak Teridentifikasi";
+                            else
+                                itemResult.bank = item.bank;
+                            if (item.bankCard == "")
+                                itemResult.bankCard = "Tidak Teridentifikasi";
+                            else
+                                itemResult.bankCard = item.bankCard;
+                            itemResult.cardTypeName = item.cardTypeName;
+
+                            if (item.cardTypeName == "Debit")
+                                itemResult.cardAmountDebit += item.debitNominal;
+                            else {
+                                if (item.cardTypeName == "Credit")
+                                    itemResult.cardAmountCredit += item.creditNominal;
+                                else if (item.cardTypeName == "Visa")
+                                    itemResult.cardAmountVisa += item.creditVisaNominal;
+                                else if (item.cardTypeName == "Mastercard")
+                                    itemResult.cardAmountMaster += item.creditMasterNominal;
+                            }
+
+                            jsonResult.tanggal = itemResult.tanggal;
+                            jsonResult.bank = itemResult.bank;
+                            jsonResult.bankCard = itemResult.bankCard;
+                            jsonResult.cardTypeName = itemResult.cardTypeName;
+                            jsonResult.cardAmountDebit = itemResult.cardAmountDebit;
+                            jsonResult.cardAmountCredit = itemResult.cardAmountCredit;
+                            jsonResult.cardAmountVisa = itemResult.cardAmountVisa;
+                            jsonResult.cardAmountMaster = itemResult.cardAmountMaster;
+                            isHave = true;
+                            jsonResults.push(jsonResult);
+
+                            var index = jsonResults.indexOf(itemResult.tanggal);
+                            //if (jsonResults.indexOf(itemResult.tanggal) >= 0 && jsonResults.indexOf(itemResult.bank) >= 0 && jsonResults.indexOf(itemResult.bankCard) >= 0 && jsonResults.indexOf(itemResult.cardTypeName) >= 0) {
+                            jsonResults.splice(index, 1);
+                            //}
+
+                            break;
+                        }
+                    }
+                    // jika belum ada data yang sama, buat baru
+                    if (!isHave && item.bank != "Cash") {
+                        jsonResult.tanggal = data.tanggal.getDate() + " " + months[data.tanggal.getMonth()] + " " + data.tanggal.getFullYear();
+                        if (item.bank == "")
+                            jsonResult.bank = "Tidak Teridentifikasi";
+                        else
+                            jsonResult.bank = item.bank;
+                        if (item.bankCard == "")
+                            jsonResult.bankCard = "Tidak Teridentifikasi";
+                        else
+                            jsonResult.bankCard = item.bankCard;
+                        jsonResult.cardTypeName = item.cardTypeName;
+
+                        if (item.cardTypeName == "Debit")
+                            jsonResult.cardAmountDebit = item.debitNominal;
+                        else {
+                            if (item.cardTypeName == "Credit")
+                                jsonResult.cardAmountCredit = item.creditNominal;
+                            else if (item.cardTypeName == "Visa")
+                                jsonResult.cardAmountVisa = item.creditVisaNominal;
+                            else if (item.cardTypeName == "Mastercard")
+                                jsonResult.cardAmountMaster = item.creditMasterNominal;
+                        }
+                        jsonResults.push(jsonResult);
+
+                    }
+
+                }
             }
         }
-        var unique = tempBank.filter((v, i, a) => a.indexOf(v) === i);
-        this.unique = unique;
-        this.unique.sort();
 
-        var unique2 = tempBankCard.filter((v, i, a) => a.indexOf(v) === i);
-        this.unique2 = unique2;
-        this.unique2.sort();
-        for (var j = 0; j < unique.length; j++) {
-            var totalTempDebit = 0;
-            var totalTempCredit = 0;
-            var totalTempCreditMaster = 0;
-            var totalTempCreditVisa = 0;
+        var totalCardAmountDebit = 0, totalCardAmountCredit = 0, totalCardAmountVisa = 0, totalCardAmountMaster = 0;
+        for (var i = 0; i < jsonResults.length; i++) {
+            console.log(jsonResults[i].tanggal);
+            console.log(jsonResults[i].bank);
+            console.log(jsonResults[i].bankCard);
+            console.log(jsonResults[i].cardTypeName);
+            console.log(jsonResults[i].cardAmountDebit);
+            console.log(jsonResults[i].cardAmountCredit);
+            console.log(jsonResults[i].cardAmountVisa);
+            console.log(jsonResults[i].cardAmountMaster);
+            this.reportHTML += "        <tr>";
 
-            for (var data of this.data.results) {
-                var isTanggalRowSpan = false;
-                var tempDebit = 0;
-                var tempCredit = 0;
-                var tempCreditMaster = 0;
-                var tempCreditVisa = 0;
-                var isItemRowSpan = 0;
+            this.reportHTMLDetail += "        <td>" + jsonResults[i].tanggal + "</td>";
+            this.reportHTMLDetail += "        <td>" + jsonResults[i].bank + "</td>";
+            this.reportHTMLDetail += "        <td>" + jsonResults[i].bankCard + "</td>";
+            this.reportHTMLDetail += "        <td>" + jsonResults[i].cardAmountDebit.toLocaleString() + "</td>";
+            this.reportHTMLDetail += "        <td>" + jsonResults[i].cardAmountCredit.toLocaleString() + "</td>";
+            this.reportHTMLDetail += "        <td>" + jsonResults[i].cardAmountVisa.toLocaleString() + "</td>";
+            this.reportHTMLDetail += "        <td>" + jsonResults[i].cardAmountMaster.toLocaleString() + "</td>";
 
-                for (var item of data.items) {
-                    if (!item.isVoid) {
-                        if (item.bank == unique[j] && item.bank != "Cash") {
-                            tempDebit += item.debitNominalLainnya;
-                            tempCredit += item.creditNominalLainnya;
-                            tempCreditMaster += item.creditMasterNominal;
-                            tempCreditVisa += item.creditVisaNominal;
+            this.reportHTML += "        </tr>";
+            this.reportHTMLDetail += "<tr></tr>";
+
+            totalCardAmountDebit += parseInt(jsonResults[i].cardAmountDebit);
+            totalCardAmountCredit += parseInt(jsonResults[i].cardAmountCredit);
+            totalCardAmountVisa += jsonResults[i].cardAmountVisa;
+            totalCardAmountMaster += jsonResults[i].cardAmountMaster;
+
+        }
+        this.reportHTMLDetail += "        <td></td>";
+        this.reportHTMLDetail += "        <td></td>";
+        this.reportHTMLDetail += "        <td></td>";
+        this.reportHTMLDetail += "        <td style='background-color:#48cbe2;'>" + totalCardAmountDebit.toLocaleString() + "</td>";
+        this.reportHTMLDetail += "        <td style='background-color:#48cbe2;'>" + totalCardAmountCredit.toLocaleString() + "</td>";
+        this.reportHTMLDetail += "        <td style='background-color:#48cbe2;'>" + totalCardAmountVisa.toLocaleString() + "</td>";
+        this.reportHTMLDetail += "        <td style='background-color:#48cbe2;'>" + totalCardAmountMaster.toLocaleString() + "</td>";
+
+        var jsonResults2 = [];
+
+        for (var data of jsonResults) {
+            var jsonResult2 = {};
+            jsonResult2.cardAmountDebit = 0;
+            jsonResult2.cardAmountCredit = 0;
+            jsonResult2.cardAmountVisa = 0;
+            jsonResult2.cardAmountMaster = 0;
+            // jika belum ada data, buat data baru
+            if (jsonResults2.length == 0) {
+                jsonResult2.bank = data.bank;
+                jsonResult2.bankCard = data.bankCard;
+                jsonResult2.cardTypeName = data.cardTypeName;
+                if (data.cardTypeName == "Debit") {
+                    jsonResult2.cardAmountDebit = data.cardAmountDebit;
+                }
+                else {
+                    if (data.cardTypeName == "Credit")
+                        jsonResult2.cardAmountCredit = data.cardAmountCredit;
+                    if (data.cardTypeName == "Visa")
+                        jsonResult2.cardAmountVisa = data.cardAmountVisa;
+                    else if (data.cardTypeName == "Mastercard")
+                        jsonResult2.cardAmountMaster = data.cardAmountMaster;
+                }
+                jsonResults2.push(jsonResult2);
+            }
+
+            else {
+                var isHave = false;
+                // cek apakah data ada yang sama atau tidak
+                // jika ada data yang sama, tambahkan dengan yang sudah ada
+                for (var itemResult of jsonResults2) {
+                    if (data.cardTypeName == itemResult.cardTypeName && data.bank == itemResult.bank && data.bankCard == itemResult.bankCard) {
+                        itemResult.bank = data.bank;
+                        itemResult.bankCard = data.bankCard;
+                        itemResult.cardTypeName = data.cardTypeName;
+
+                        if (data.cardTypeName == "Debit")
+                            itemResult.cardAmountDebit += data.cardAmountDebit;
+                        else {
+                            if (data.cardTypeName == "Credit")
+                                itemResult.cardAmountCredit += data.cardAmountCredit;
+                            else if (data.cardTypeName == "Visa")
+                                itemResult.cardAmountVisa += data.cardAmountVisa;
+                            else if (item.cardTypeName == "Mastercard")
+                                itemResult.cardAmountMaster += data.cardAmountMaster;
                         }
+
+                        jsonResult2.bank = itemResult.bank;
+                        jsonResult2.bankCard = itemResult.bankCard;
+                        jsonResult2.cardTypeName = itemResult.cardTypeName;
+                        jsonResult2.cardAmountDebit = itemResult.cardAmountDebit;
+                        jsonResult2.cardAmountCredit = itemResult.cardAmountCredit;
+                        jsonResult2.cardAmountVisa = itemResult.cardAmountVisa;
+                        jsonResult2.cardAmountMaster = itemResult.cardAmountMaster;
+                        isHave = true;
+                        jsonResults2.push(jsonResult2);
+
+                        var index = jsonResults2.indexOf(itemResult.cardTypeName);
+                        //if (jsonResults.indexOf(itemResult.tanggal) >= 0 && jsonResults.indexOf(itemResult.bank) >= 0 && jsonResults.indexOf(itemResult.bankCard) >= 0 && jsonResults.indexOf(itemResult.cardTypeName) >= 0) {
+                        jsonResults2.splice(index, 1);
+                        //}
+
+                        break;
                     }
                 }
+                // jika belum ada data yang sama, buat baru
+                if (!isHave) {
+                    jsonResult2.bank = data.bank;
 
-                for (var item of data.items) {
-                    if (item.bank == unique[j] && item.bank != "Cash" && !item.isVoid) {
+                    jsonResult2.bankCard = data.bankCard;
+                    jsonResult2.cardTypeName = data.cardTypeName;
 
-                        this.reportHTML += "        <tr>";
-                        if (!isTanggalRowSpan)
-                            this.reportHTMLDetail += "        <td width='300px' rowspan='" + data.tanggalRowSpan + "'>" + data.tanggal.getDate() + " " + months[data.tanggal.getMonth()] + " " + data.tanggal.getFullYear() + "</td>";
-
-                        if (!isTanggalRowSpan){
-                            this.reportHTMLDetail += "        <td rowspan='" + data.tanggalRowSpan + "'>" + item.bank + "</td>";
-                            this.reportHTMLDetail += "        <td rowspan='" + data.tanggalRowSpan + "'>" + item.bankCard + "</td>";
-                             
-                        }
-                        if (!isTanggalRowSpan)
-                            this.reportHTMLDetail += "            <td rowspan='" + data.tanggalRowSpan + "'>" + tempDebit.toLocaleString() + "</td>";
-
-                        if (!isTanggalRowSpan)
-                            this.reportHTMLDetail += "            <td rowspan='" + data.tanggalRowSpan + "'>" + tempCredit.toLocaleString() + "</td>";
-
-                        if (!isTanggalRowSpan)
-                            this.reportHTMLDetail += "            <td rowspan='" + data.tanggalRowSpan + "'>" + tempCreditVisa.toLocaleString() + "</td>";
-
-                        if (!isTanggalRowSpan)
-                            this.reportHTMLDetail += "            <td rowspan='" + data.tanggalRowSpan + "'>" + tempCreditMaster.toLocaleString() + "</td>";
-
-                        isItemRowSpan++;
-
-                        if (!isTanggalRowSpan) {
-                            totalTempDebit += tempDebit;
-                            totalTempCredit += tempCredit;
-                            totalTempCreditMaster += tempCreditMaster;
-                            totalTempCreditVisa += tempCreditVisa;
-
-                            this.reportHTMLDetail += "<tr></tr>";
-
-                        }
-
-                        isTanggalRowSpan = true;
-
-                        this.reportHTMLDetail += "<tr></tr>";
+                    if (data.cardTypeName == "Debit")
+                        jsonResult2.cardAmountDebit = data.cardAmountDebit;
+                    else {
+                        if (data.cardTypeName == "Credit")
+                            jsonResult2.cardAmountCredit = data.cardAmountCredit;
+                        else if (data.cardTypeName == "Visa")
+                            jsonResult2.cardAmountVisa = data.cardAmountVisa;
+                        else if (data.cardTypeName == "Mastercard")
+                            jsonResult2.cardAmountMaster = data.cardAmountMaster;
                     }
-
-                    this.reportHTMLDetail += "<tr></tr>";
+                    jsonResults2.push(jsonResult2);
 
                 }
-                this.reportHTMLDetail += "<tr></tr>";
-            }
-            if (unique[j] != "Cash") {
-                this.reportHTMLDetail += "        <td>Total</td>";
 
-                this.reportHTMLDetail += "        <td></td>";
-                this.reportHTMLDetail += "        <td></td>";
-                this.reportHTMLDetail += "<td style='background-color:#48cbe2;'>" + totalTempDebit + "</td>";
-                this.reportHTMLDetail += "<td style='background-color:#48cbe2;'>" + totalTempCredit + "</td>";
-                this.reportHTMLDetail += "<td style='background-color:#48cbe2;'>" + totalTempCreditVisa + "</td>";
-                this.reportHTMLDetail += "<td style='background-color:#48cbe2;'>" + totalTempCreditMaster + "</td>";
-
-                this.arrTotalTempDebit[j] = totalTempDebit;
-                this.totalTempDebit = totalTempDebit;
-                this.arrTotalTempCredit[j] = totalTempCredit;
-                this.totalTempCredit = totalTempCredit;
-                this.arrTotalTempCreditVisa[j] = totalTempCreditVisa;
-                this.totalTempCreditVisa = totalTempCreditVisa;
-                this.arrTotalTempCreditMaster[j] = totalTempCreditMaster;
-                this.totalTempCreditMaster = totalTempCreditMaster;
-
-                this.subtotalArrTotal += this.arrTotalTempDebit[j] + this.arrTotalTempCredit[j] + this.arrTotalTempCreditMaster[j] + this.arrTotalTempCreditVisa[j];
-            }
-            if (unique[j] == "Cash") {
-                var index = unique.indexOf("Cash");
-                if (index >= 0) {
-                    unique.splice(index, 1);
-                }
             }
 
+        }
+
+        var totalTempDebit = 0;
+        var totalTempCredit = 0;
+        var totalTempCreditMaster = 0;
+        var totalTempCreditVisa = 0;
+        this.jsonResults2 = jsonResults2;
+        for (var i = 0; i < jsonResults2.length; i++) {
+            console.log(jsonResults2[i].bank);
+            console.log(jsonResults2[i].bankCard);
+            console.log(jsonResults2[i].cardTypeName);
+            console.log(jsonResults2[i].cardAmountDebit);
+            console.log(jsonResults2[i].cardAmountCredit);
+            console.log(jsonResults2[i].cardAmountVisa);
+            console.log(jsonResults2[i].cardAmountMaster);
 
 
 
+            // totalTempDebit += jsonResults2[i].cardAmountDebit;
+            // totalTempCredit += jsonResults2[i].cardAmountCredit;
+            // totalTempCreditMaster += jsonResults2[i].cardAmountMaster;
+            // totalTempCreditVisa += jsonResults2[i].cardAmountVisa;
+
+
+            this.arrTotalTempDebit[i] = jsonResults2[i].cardAmountDebit;
+            this.arrTotalTempCredit[i] = jsonResults2[i].cardAmountCredit;
+            this.arrTotalTempCreditVisa[i] = jsonResults2[i].cardAmountVisa;
+            this.arrTotalTempCreditMaster[i] = jsonResults2[i].cardAmountMaster;
+
+            this.subtotalArrTotal += this.arrTotalTempDebit[i] + this.arrTotalTempCredit[i] + this.arrTotalTempCreditMaster[i] + this.arrTotalTempCreditVisa[i];
+            
+            // this.reportHTMLDetail += "<tr></tr>";
+            // this.reportHTMLDetail += "        <td></td>";
+            // this.reportHTMLDetail += "        <td>" + jsonResults2[i].bank + "</td>";
+            // this.reportHTMLDetail += "        <td>" + jsonResults2[i].bankCard + "</td>";
+            // this.reportHTMLDetail += "        <td>" + jsonResults2[i].cardAmountDebit.toLocaleString() + "</td>";
+            // this.reportHTMLDetail += "        <td>" + jsonResults2[i].cardAmountCredit.toLocaleString() + "</td>";
+            // this.reportHTMLDetail += "        <td>" + jsonResults2[i].cardAmountVisa.toLocaleString() + "</td>";
+            // this.reportHTMLDetail += "        <td>" + jsonResults2[i].cardAmountMaster.toLocaleString() + "</td>";
         }
         this.subtotalArrTotal += (this.totalCash + this.data.filter.store.salesCapital);
+
+
+
+
+        // var i = 0;
+        // var k = 0;
+        // var tempBank = [];
+        // var tempBankCard = [];
+        // for (var data of this.data.results) {
+        //     for (var item of data.items) {
+
+        //         tempBank[k] = item.bank;
+        //         tempBankCard[k] = item.bankCard;
+        //         k++;
+        //     }
+        // }
+        // var unique = tempBank.filter((v, i, a) => a.indexOf(v) === i);
+        // this.unique = unique;
+        // this.unique.sort();
+
+        // var unique2 = tempBankCard.filter((v, i, a) => a.indexOf(v) === i);
+        // this.unique2 = unique2;
+        // this.unique2.sort();
+        // for (var x = 0; x < unique.length; x++) {
+        //     var totalTempDebit = 0;
+        //     var totalTempCredit = 0;
+        //     var totalTempCreditMaster = 0;
+        //     var totalTempCreditVisa = 0;
+
+        //     var tempDebit = 0;
+        //     var tempCredit = 0;
+        //     var tempCreditMaster = 0;
+        //     var tempCreditVisa = 0;
+
+        //     for (var y = 0; y < unique2.length; y++) {
+        //         for (var z = 0; z < jsonResults.length; z++) {
+        //             if (jsonResults[z].bank == unique[x] && jsonResults[z].bankCard == unique2[y]) {
+        //                 tempDebit += jsonResults[z].cardAmountDebit;
+        //                 tempCredit += jsonResults[z].cardAmountCredit;
+        //                 tempCreditMaster += jsonResults[z].cardAmountMaster;
+        //                 tempCreditVisa += jsonResults[z].cardAmountVisa;
+
+        //                 totalTempDebit += tempDebit;
+        //                 totalTempCredit += tempCredit;
+        //                 totalTempCreditMaster += tempCreditMaster;
+        //                 totalTempCreditVisa += tempCreditVisa;
+
+        //                 this.arrTotalTempDebit[z] = totalTempDebit;
+        //                 this.totalTempDebit = totalTempDebit;
+        //                 this.arrTotalTempCredit[z] = totalTempCredit;
+        //                 this.totalTempCredit = totalTempCredit;
+        //                 this.arrTotalTempCreditVisa[z] = totalTempCreditVisa;
+        //                 this.totalTempCreditVisa = totalTempCreditVisa;
+        //                 this.arrTotalTempCreditMaster[z] = totalTempCreditMaster;
+        //                 this.totalTempCreditMaster = totalTempCreditMaster;
+
+        //                 this.subtotalArrTotal += this.arrTotalTempDebit[z] + this.arrTotalTempCredit[z] + this.arrTotalTempCreditMaster[z] + this.arrTotalTempCreditVisa[z];
+
+
+        //             }
+
+        //         }
+        //     }
+        //     if (unique[x] == "Cash") {
+        //         var index = unique.indexOf("Cash");
+        //         if (index >= 0) {
+        //             unique.splice(index, 1);
+        //         }
+        //     }
+        // }
+
+        // this.subtotalArrTotal += (this.totalCash + this.data.filter.store.salesCapital);
+
+
+        // var i = 0;
+        // var k = 0;
+        // var tempBank = [];
+        // var tempBankCard = [];
+        // for (var data of this.data.results) {
+        //     for (var item of data.items) {
+
+        //         tempBank[k] = item.bank;
+        //         tempBankCard[k] = item.bankCard;
+        //         k++;
+        //     }
+        // }
+        // var unique = tempBank.filter((v, i, a) => a.indexOf(v) === i);
+        // this.unique = unique;
+        // this.unique.sort();
+
+        // var unique2 = tempBankCard.filter((v, i, a) => a.indexOf(v) === i);
+        // this.unique2 = unique2;
+        // this.unique2.sort();
+        // for (var j = 0; j < unique.length; j++) {
+        //     var totalTempDebit = 0;
+        //     var totalTempCredit = 0;
+        //     var totalTempCreditMaster = 0;
+        //     var totalTempCreditVisa = 0;
+
+        //     for (var data of this.data.results) {
+        //         var isTanggalRowSpan = false;
+        //         var tempDebit = 0;
+        //         var tempCredit = 0;
+        //         var tempCreditMaster = 0;
+        //         var tempCreditVisa = 0;
+        //         var isItemRowSpan = 0;
+
+        //         for (var item of data.items) {
+        //             if (!item.isVoid) {
+        //                 if (item.bank == unique[j] && item.bank != "Cash") {
+        //                     tempDebit += item.debitNominalLainnya;
+        //                     tempCredit += item.creditNominalLainnya;
+        //                     tempCreditMaster += item.creditMasterNominal;
+        //                     tempCreditVisa += item.creditVisaNominal;
+        //                 }
+        //             }
+        //         }
+
+        //         for (var item of data.items) {
+        //             if (item.bank == unique[j] && item.bank != "Cash" && !item.isVoid) {
+
+        //                 this.reportHTML += "        <tr>";
+        //                 if (!isTanggalRowSpan)
+        //                     this.reportHTMLDetail += "        <td width='300px' rowspan='" + data.tanggalRowSpan + "'>" + data.tanggal.getDate() + " " + months[data.tanggal.getMonth()] + " " + data.tanggal.getFullYear() + "</td>";
+
+        //                 if (!isTanggalRowSpan) {
+        //                     this.reportHTMLDetail += "        <td rowspan='" + data.tanggalRowSpan + "'>" + item.bank + "</td>";
+        //                     this.reportHTMLDetail += "        <td rowspan='" + data.tanggalRowSpan + "'>" + item.bankCard + "</td>";
+
+        //                 }
+        //                 if (!isTanggalRowSpan)
+        //                     this.reportHTMLDetail += "            <td rowspan='" + data.tanggalRowSpan + "'>" + tempDebit.toLocaleString() + "</td>";
+
+        //                 if (!isTanggalRowSpan)
+        //                     this.reportHTMLDetail += "            <td rowspan='" + data.tanggalRowSpan + "'>" + tempCredit.toLocaleString() + "</td>";
+
+        //                 if (!isTanggalRowSpan)
+        //                     this.reportHTMLDetail += "            <td rowspan='" + data.tanggalRowSpan + "'>" + tempCreditVisa.toLocaleString() + "</td>";
+
+        //                 if (!isTanggalRowSpan)
+        //                     this.reportHTMLDetail += "            <td rowspan='" + data.tanggalRowSpan + "'>" + tempCreditMaster.toLocaleString() + "</td>";
+
+        //                 this.reportHTML += "        </tr>";
+        //                 isItemRowSpan++;
+
+        //                 if (!isTanggalRowSpan) {
+        //                     totalTempDebit += tempDebit;
+        //                     totalTempCredit += tempCredit;
+        //                     totalTempCreditMaster += tempCreditMaster;
+        //                     totalTempCreditVisa += tempCreditVisa;
+
+        //                     this.reportHTMLDetail += "<tr></tr>";
+
+        //                 }
+
+        //                 isTanggalRowSpan = true;
+
+        //                 this.reportHTMLDetail += "<tr></tr>";
+        //             }
+
+        //             this.reportHTMLDetail += "<tr></tr>";
+
+        //         }
+        //         this.reportHTMLDetail += "<tr></tr>";
+        //     }
+        //     this.reportHTMLDetail += "        <tr>";
+        //     if (unique[j] != "Cash") {
+
+        //         this.reportHTMLDetail += "        <tr>";
+        //         this.reportHTMLDetail += "        <td>Total</td>";
+
+        //         this.reportHTMLDetail += "        <td></td>";
+        //         this.reportHTMLDetail += "        <td></td>";
+        //         this.reportHTMLDetail += "<td style='background-color:#48cbe2;'>" + totalTempDebit + "</td>";
+        //         this.reportHTMLDetail += "<td style='background-color:#48cbe2;'>" + totalTempCredit + "</td>";
+        //         this.reportHTMLDetail += "<td style='background-color:#48cbe2;'>" + totalTempCreditVisa + "</td>";
+        //         this.reportHTMLDetail += "<td style='background-color:#48cbe2;'>" + totalTempCreditMaster + "</td>";
+
+        //         this.reportHTMLDetail += "        </tr>";
+        //         this.arrTotalTempDebit[j] = totalTempDebit;
+        //         this.totalTempDebit = totalTempDebit;
+        //         this.arrTotalTempCredit[j] = totalTempCredit;
+        //         this.totalTempCredit = totalTempCredit;
+        //         this.arrTotalTempCreditVisa[j] = totalTempCreditVisa;
+        //         this.totalTempCreditVisa = totalTempCreditVisa;
+        //         this.arrTotalTempCreditMaster[j] = totalTempCreditMaster;
+        //         this.totalTempCreditMaster = totalTempCreditMaster;
+
+        //         this.subtotalArrTotal += this.arrTotalTempDebit[j] + this.arrTotalTempCredit[j] + this.arrTotalTempCreditMaster[j] + this.arrTotalTempCreditVisa[j];
+        //     }
+
+        //     this.reportHTMLDetail += "        </tr>";
+        //     if (unique[j] == "Cash") {
+        //         var index = unique.indexOf("Cash");
+        //         if (index >= 0) {
+        //             unique.splice(index, 1);
+        //         }
+        //     }
+
+
+
+
+        // }
+        // this.subtotalArrTotal += (this.totalCash + this.data.filter.store.salesCapital);
 
         this.reportHTMLDetail += "        </tbody>";
         this.reportHTMLDetail += "    </table>";
