@@ -56,6 +56,14 @@ export class Session {
         data.roles = value;
         this.data = data;
     }
+    get stores() {
+        return this.data.stores || [];
+    }
+    set stores(value) {
+        var data = this.data;
+        data.stores = value;
+        this.data = data;
+    }
 
     remove() {
         Cookie.delete('__jwt'); // Delete a cookie by name

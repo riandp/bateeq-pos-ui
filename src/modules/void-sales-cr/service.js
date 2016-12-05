@@ -1,17 +1,18 @@
 import {inject, Lazy} from 'aurelia-framework';
 import {HttpClient} from 'aurelia-fetch-client';
 import {RestService} from '../../rest-service';
+import {SecureService} from '../../utils/secure-service';
 
 const serviceUri = require('../../host').sales + '/docs/salesvoids';
 const serviceUriUpdate = require('../../host').sales + '/docs/sales';
 const serviceUriBank = require('../../host').master + '/banks';
 const serviceUriCardType = require('../../host').master + '/cardtypes';
 const serviceUriPromo = require('../../host').sales + '/promos'; 
-    const serviceUriStore = require('../../host').master + '/stores';
-        const serviceUriTransferInDoc = require('../../host').inventory + '/docs/transfer-in';
+const serviceUriStore = require('../../host').master + '/stores';
+const serviceUriTransferInDoc = require('../../host').inventory + '/docs/transfer-in';
 
 
-export class Service extends RestService {
+export class Service extends SecureService {
 
     constructor(http, aggregator) {
         super(http, aggregator);

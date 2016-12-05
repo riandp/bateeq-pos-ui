@@ -317,9 +317,15 @@ div.au-stagger {
   }
   
   .struk {
-    width: 75mm; 
+    /*width: 76mm;*/
+    width: 100% !important; 
+    /*height: 100mm;*/
     overflow: hidden;
-    font-size:8pt;
+    font-size:9pt;
+    font-family: "Times New Roman", Times, serif;
+    padding: 12pt;
+    margin: 0;
+    display: block;
   }
   
   .a4 {

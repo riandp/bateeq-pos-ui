@@ -48,9 +48,9 @@ export class Create {
             }
         } 
         this.service.create(this.data)
-            .then(response => {
-                //this.detail(response.headers.get('Id'));
-                this.list();
+            .then(id => {
+                this.detail(id);
+                // this.list();
             })
             .catch(e => {
                 this.error = e;

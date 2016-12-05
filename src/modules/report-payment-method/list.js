@@ -127,7 +127,9 @@ export class List {
                                     itemData.creditMasterNominal = parseInt(data.salesDetail.cardAmount);
                                     itemData.creditVisaNominal = 0;
                                     itemData.creditNominalLainnya = 0;
+
                                     itemData.cardTypeName = data.salesDetail.cardType.name;
+
 
                                 }
                                 else if (data.salesDetail.cardType.name == "Visa") {
@@ -135,7 +137,9 @@ export class List {
                                     itemData.creditMasterNominal = 0;
                                     itemData.creditVisaNominal = parseInt(data.salesDetail.cardAmount);
                                     itemData.creditNominalLainnya = 0;
+
                                     itemData.cardTypeName = data.salesDetail.cardType.name;
+
 
                                 }
                                 else if (data.salesDetail.cardType.name != "Visa" && data.salesDetail.cardType.name != "Mastercard") {
@@ -214,7 +218,7 @@ export class List {
         this.totalTempCreditMaster = 0;
 
         this.totalCash = 0;
-        //console.log(JSON.stringify(this.data.results));
+
         var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
         this.reportHTML = "Payment Summary";
@@ -241,6 +245,7 @@ export class List {
             var tempDebit = 0;
             var tempCredit = 0;
             var tempVoucher = 0;
+
             totalTransaksi = 0;
             for (var item of data.items) {
                 if (!item.isVoid) {
@@ -265,6 +270,7 @@ export class List {
 
 
                     if (!isTanggalRowSpan)
+
                         this.reportHTML += "            <td rowspan='" + data.tanggalRowSpan + "'>" + tempCash.toLocaleString() + "</td>";
 
                     if (!isTanggalRowSpan)
@@ -279,6 +285,7 @@ export class List {
                     var totalOmset = tempCash + tempCredit + tempDebit + tempVoucher;
                     if (!isTanggalRowSpan)
                         this.reportHTML += "            <td rowspan='" + data.tanggalRowSpan + "'>" + totalOmset.toLocaleString() + "</td>";
+
                     this.reportHTML += "        </tr>";
                     isTanggalRowSpan = true;
                 }
@@ -315,6 +322,7 @@ export class List {
         this.reportHTML += "        <td style='background-color:#48cbe2;'>" + totalCredit.toLocaleString() + "</td>";
         this.reportHTML += "        <td style='background-color:#48cbe2;'>" + totalVoucher.toLocaleString() + "</td>";
         this.reportHTML += "        <td style='background-color:#48cbe2;'>" + totalTotalOmset.toLocaleString() + "</td>";
+
         this.reportHTML += "        </tbody>";
         this.reportHTML += "    </table>";
 
@@ -328,7 +336,9 @@ export class List {
         this.reportHTMLDetail += "            <tr style='background-color:#282828; color:#ffffff;'>";
         this.reportHTMLDetail += "                <th>Tanggal</th>";
         this.reportHTMLDetail += "                <th>Bank (EDC)</th>";
-        this.reportHTMLDetail += "                <th>Bank (Card)</th>";
+
+        this.reportHTMLDetail += "                <th>Bank (Kartu)</th>";
+
         this.reportHTMLDetail += "                <th>Debit Card (nominal)</th>";
         this.reportHTMLDetail += "                <th>Credit Card (nominal)</th>";
         this.reportHTMLDetail += "                <th>Credit Visa (nominal)</th>";
@@ -368,6 +378,7 @@ export class List {
                                 jsonResult.cardAmountVisa = item.creditVisaNominal;
                             else if (item.cardTypeName == "Mastercard")
                                 jsonResult.cardAmountMaster = item.creditMasterNominal;
+
                         }
                         jsonResults.push(jsonResult);
                     }
@@ -824,6 +835,8 @@ export class List {
         // }
         // this.subtotalArrTotal += (this.totalCash + this.data.filter.store.salesCapital);
 
+
+               
         this.reportHTMLDetail += "        </tbody>";
         this.reportHTMLDetail += "    </table>";
 
